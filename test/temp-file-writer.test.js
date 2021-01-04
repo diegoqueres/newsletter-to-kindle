@@ -1,7 +1,7 @@
 const test = require('tape');
 const fs = require('fs').promises;
-const TempWriter = require('../utils/temp-file-writer');
-const ValidationUtils = require('../utils/validation-utils');
+const TempWriter = require('../app/utils/temp-file-writer');
+const ValidationUtils = require('../app/utils/validation-utils');
 
 test('Write temp file', async (t) => {
     let fileName = 'test-temp-file.txt';
