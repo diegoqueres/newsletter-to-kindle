@@ -18,7 +18,7 @@ class Scrapper {
         this._feed = feed;
         this.browser = null;
         this.page = null;
-        this.#initI18N();
+        this.initI18N();
     }
 
     get feed() {
@@ -28,7 +28,7 @@ class Scrapper {
         this._feed = feed;
     }
 
-    #initI18N() {
+    initI18N() {
         this.i18n = new I18n();
         this.i18n.configure({
             defaultLocale: this.feed.locale.substr(0,2),
@@ -73,16 +73,16 @@ class Scrapper {
     }
 
     getFeedItems(sourceFeed) {
-        let feedItems = this.#getFeedItemsByPeriodicity(sourceFeed);
+        let feedItems = this.getFeedItemsByPeriodicity(sourceFeed);
         if (feedItems.length == 0) return feedItems;
 
-        feedItems = this.#removeDuplicateFeedItems(feedItems);
-        feedItems = this.#limitFeedItemsToMax(feedItems);
+        feedItems = this.removeDuplicateFeedItems(feedItems);
+        feedItems = this.limitFeedItemsToMax(feedItems);
                 
         return feedItems;
     }
 
-    #getFeedItemsByPeriodicity(sourceFeed) {
+    getFeedItemsByPeriodicity(sourceFeed) {
         let today = new Date();
         let feedItems = [];
 
@@ -115,14 +115,14 @@ class Scrapper {
         return feedItems;
     }
 
-    #removeDuplicateFeedItems(feedItems) {
+    removeDuplicateFeedItems(feedItems) {
         return Array.from(new Set(feedItems.map(a => a.postUrl)))
             .map(postUrl => {
                 return feedItems.find(a => a.postUrl === postUrl)
             });        
     }
 
-    #limitFeedItemsToMax(feedItems) {
+    limitFeedItemsToMax(feedItems) {
         return feedItems.slice(0, this.feed.maxPosts);
     }
 
