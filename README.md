@@ -105,7 +105,8 @@ _0.2.1: Experimental version._
 - [ ] Log of submitted articles to improve the delivery verification _(today it is very simple)_;
 
 
-- _(optional)_ The application currently sends 1 file for each article. It can allow sending a file containing multiple related articles;
+- _(optional)_ Allow sending article images _(Need better tests of Amazon Send to Kindle. Apparently it fails to deliver a portion of the images)_.
+- _(optional)_ The application currently sends 1 file for each article. It can allow sending a file containing multiple related articles.
 -  _(optional)_ This application is currently single user. But it can become a scalable service/support multiple users, for instance.
 
 ## Contributing
