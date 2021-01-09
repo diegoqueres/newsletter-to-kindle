@@ -143,7 +143,7 @@ class Scrapper {
         newHtmlContent += `<article>`;
         newHtmlContent += `<header>`;
         newHtmlContent += `<h2 class="headline">${post.title}</h2>\n`;
-        newHtmlContent += `<div class="byline"><a href="#" rel="author">${post.author}</a> | ${post.date.toLocaleDateString(this.feed.locale)}</div>\n`;
+        newHtmlContent += `<div class="byline"><a href="#" rel="author">${post.author}</a> | ${post.date.toLocaleDateString(this.feed.locale, {dateStyle:"long"})}</div>\n`;
         newHtmlContent += `</header>`;
         newHtmlContent += `${post.htmlContent}\n<hr>\n`;
         newHtmlContent += `<p><em><strong>${this.i18n.__('Author')}: </strong>${post.author}</em><br />`;
