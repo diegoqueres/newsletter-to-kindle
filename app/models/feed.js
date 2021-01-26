@@ -1,4 +1,5 @@
 'use strict';
+const ValidationUtils = require('../utils/validation-utils');
 const {Model} = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
@@ -28,6 +29,14 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
 
+    mustBeTranslated() {
+      return ValidationUtils.validNonEmptyString(this.translationTarget); 
+    }
+
+    mustBeScrapped() {
+      return this.partial; 
+    }
+
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -48,7 +57,9 @@ module.exports = (sequelize, DataTypes) => {
     articleSelector: DataTypes.STRING,
     maxPosts: DataTypes.INTEGER,
     updatePeriodicity: DataTypes.INTEGER,
-    dayOfWeek: DataTypes.INTEGER
+    dayOfWeek: DataTypes.INTEGER,
+    translationTarget: DataTypes.STRING,
+    translationMode: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Feed'

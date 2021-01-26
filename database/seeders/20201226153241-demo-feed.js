@@ -1,5 +1,6 @@
 'use strict';
 const {Feed} = require('../../app/models');
+const Translator = require('../../app/services/translator');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -19,7 +20,9 @@ module.exports = {
         updatePeriodicity: Feed.PERIODICITY.DAILY,
         dayOfWeek: null,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        translationTarget: null,
+        translationMode: null
       },
       *********************************************************************************/
     ], {});   
