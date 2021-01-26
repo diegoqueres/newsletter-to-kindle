@@ -8,6 +8,8 @@ const Post = require('../entities/post');
 const DateUtils = require('../utils/date-utils');
 const ValidationUtils = require('../utils/validation-utils');
 const {Feed} = require('../models');
+const Translator = require('./translator');
+require('dotenv').config();
 
 class Scrapper {
     static timeoutMin = 30 * 1000;
@@ -29,15 +31,20 @@ class Scrapper {
     }
 
     initI18N() {
-        this.i18n = new I18n();
-        this.i18n.configure({
-            defaultLocale: this.feed.locale.substr(0,2),
+        this.i18n = this.getNewI18N(this.feed.locale);
+    }
+
+    getNewI18N(locale) {
+        let i18n = new I18n();
+        i18n.configure({
+            defaultLocale: locale.substr(0,2),
             fallbacks: [
                 { nl: 'en', 'en-*': 'en' },
                 { nl: 'pt', 'pt-*': 'pt' },
             ],
             directory: path.join(__dirname, '../../locales')
         });   
+        return i18n;
     }
 
     async initBrowser() {
@@ -64,7 +71,7 @@ class Scrapper {
                     allowedTags: [],
                     allowedAttributes: {}
                 });  
-                post.htmlContent = feedItem["content:encoded"];
+                post.htmlContent = sanitizeHtml(feedItem["content:encoded"]);
             }
             posts.push(post);
         });
@@ -127,31 +134,79 @@ class Scrapper {
     }
 
     async scrapPost(post) {
-        if (!ValidationUtils.validNonEmptyString(post.content)) {
+        if (this.feed.mustBeScrapped()) {
             let {content, htmlContent} = await this.scrapPostByUrl(post.link);
             post.content = content;
             post.htmlContent = htmlContent;
         }
+        let locale = this.feed.locale;
+        let lang = locale;
+        let labelAuthor = this.i18n.__('Author');
+        let labelSource = this.i18n.__('Source');
+        if (this.feed.mustBeTranslated()) {
+            post = await this.translatePost(post);
+            lang += `, ${this.feed.translationTarget}`;
+            if (this.feed.translationMode == Translator.MODE.FULL) {
+                locale = this.feed.translationTarget;
+                lang = locale;
+                let i18n = this.getNewI18N(locale);
+                labelAuthor = i18n.__('Author');
+                labelSource = i18n.__('Source');                
+            }
+        }
 
-        let newHtmlContent = `<html>\n<head>\n`;
+        let newHtmlContent = `<!DOCTYPE html>`
+        newHtmlContent += `<html>\n<head>\n`;
         newHtmlContent += `<title>${post.title}</title>`;
         newHtmlContent += `<meta charset="${this.feed.getEncoding()}">`;
-        newHtmlContent += `<meta http-equiv="Content-Language" content="${this.feed.language}">`;
+        newHtmlContent += `<meta http-equiv="content-language" content="${lang}">`;
         newHtmlContent += `<meta name="description" content="${post.description}">`;
         newHtmlContent += `<meta name="author" content="${post.author}">`;
         newHtmlContent += `</head>\n<body>\n\n`;
         newHtmlContent += `<article>`;
         newHtmlContent += `<header>`;
+        if (ValidationUtils.validNonEmptyString(post.originalTitle))
+            newHtmlContent += `<h2 class="headline">${post.originalTitle}</h1>\n`;
         newHtmlContent += `<h2 class="headline">${post.title}</h2>\n`;
-        newHtmlContent += `<div class="byline"><a href="#" rel="author">${post.author}</a> | ${post.date.toLocaleDateString(this.feed.locale, {dateStyle:"long"})}</div>\n`;
+        newHtmlContent += `<div class="byline"><a href="#" rel="author">${post.author}</a> | ${post.date.toLocaleDateString(locale, {dateStyle:"long"})}</div>\n`;
         newHtmlContent += `</header>`;
         newHtmlContent += `${post.htmlContent}\n<hr>\n`;
-        newHtmlContent += `<p><em><strong>${this.i18n.__('Author')}: </strong>${post.author}</em><br />`;
-        newHtmlContent += `<em><strong>${this.i18n.__('Source')}: </strong>${post.link}</em></p>`;
+        newHtmlContent += `<p><em><strong>${labelAuthor}: </strong>${post.author}</em><br />`;
+        newHtmlContent += `<em><strong>${labelSource}: </strong>${post.link}</em></p>`;
         newHtmlContent += `</article>`;
         newHtmlContent += `</body>\n</html>`;
         post.htmlContent = newHtmlContent;
         
+        return post;
+    }
+
+    async translatePost(post) {
+        const translator = new Translator(this.feed.translationMode);
+        const translateParams = {
+            text: null, 
+            sourceLang: this.feed.locale, 
+            targetLang: this.feed.translationTarget, 
+            textFormat: null
+        };
+
+        //Translate article title
+        translateParams.text = post.title;
+        if (translator.mode == Translator.MODE.BILINGUAL)
+            post.originalTitle = post.title;
+        post.title = await translator.translateText(translateParams);
+
+        //Translate text content
+        if (process.env.TRANSLATOR_API_REDUCE_API_REQUESTS !== 'true') {
+            translateParams.text = post.content;
+            translateParams.textFormat = Translator.TEXT_FORMAT.PLAIN_TEXT;
+            post.content = await translator.translatePost(translateParams);
+        }
+
+        //Translate html content
+        translateParams.text = post.htmlContent;
+        translateParams.textFormat = Translator.TEXT_FORMAT.HTML;
+        post.htmlContent = await translator.translatePost(translateParams);
+
         return post;
     }
 

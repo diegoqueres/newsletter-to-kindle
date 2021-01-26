@@ -66,7 +66,9 @@ module.exports = {
         updatePeriodicity: Feed.PERIODICITY.DAILY,
         dayOfWeek: null,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        translationTarget: 'pt-BR',
+        translationMode: Translator.MODE.FULL
       },
       /*
       {   
@@ -96,11 +98,12 @@ You can run the web server with command: `npm start` _(although the project has 
 🚀 _Under construction_ 🚧
 
 ## Version
-_0.2.1: Experimental version._
+_0.3.0: Experimental version._
 
 ## Features
 - [x] Read feed content and post articles to a single Kindle user;
 - [x] Registration of multiple feeds;
+- [x] Article translations (full or bilingual translation, based on Azure Translator API);
 - [ ] Improve and implement all necessary tests;
 - [ ] Log of submitted articles to improve the delivery verification _(today it is very simple)_;
 
