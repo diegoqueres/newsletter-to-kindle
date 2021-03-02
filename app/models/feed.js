@@ -59,7 +59,8 @@ module.exports = (sequelize, DataTypes) => {
     updatePeriodicity: DataTypes.INTEGER,
     dayOfWeek: DataTypes.INTEGER,
     translationTarget: DataTypes.STRING,
-    translationMode: DataTypes.INTEGER
+    translationMode: DataTypes.INTEGER,
+    active: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'Feed'

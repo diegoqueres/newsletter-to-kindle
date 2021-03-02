@@ -8,7 +8,10 @@ const emailData = require('../../config/email-data');
 
 const ebookSender = async() => {
     try {
-      const feeds = await Feed.findAll();
+      const feeds = await Feed.findAll({
+        where: {active: true}
+      });
+      
       for (let feed of feeds) {
         try {
           let scrapper = new Scrapper(feed, getDebug());

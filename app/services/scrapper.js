@@ -7,6 +7,7 @@ const { I18n } = require('i18n');
 const Post = require('../entities/post');
 const DateUtils = require('../utils/date-utils');
 const ValidationUtils = require('../utils/validation-utils');
+const ConversionUtils = require('../utils/conversion-utils');
 const {Feed} = require('../models');
 const Translator = require('./translator');
 require('dotenv').config();
@@ -67,17 +68,16 @@ class Scrapper {
                 description: feedItem.contentSnippet
             });
             if (!this.feed.partial) {
-                post.content = sanitizeHtml(feedItem["content:encoded"], {
-                    allowedTags: [],
-                    allowedAttributes: {}
-                });  
-                post.htmlContent = sanitizeHtml(feedItem["content:encoded"]);
+                const htmlContent = feedItem["content:encoded"];
+                post.content = ConversionUtils.htmlToPlainText(htmlContent);
+                post.htmlContent = sanitizeHtml(htmlContent);
             }
             posts.push(post);
         });
 
         return posts;
     }
+    
 
     getFeedItems(sourceFeed) {
         let feedItems = this.getFeedItemsByPeriodicity(sourceFeed);
