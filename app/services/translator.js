@@ -22,42 +22,13 @@ class Translator {
 
     constructor(mode) {
         this.mode = mode;
-    }
-
-    async translatePost(params) {
-      const {text, sourceLang, targetLang, textFormat=Translator.TEXT_FORMAT.HTML} = params;
-      const plainText = sanitizeHtml(text, toPlainText); 
-      const textLimit = process.env.TRANSLATOR_API_TEXT_LIMIT_PER_REQUEST;
-
-      let textTokens = [], textArray = [];
-      switch (textFormat) {
-        case Translator.TEXT_FORMAT.PLAIN_TEXT:
-          textTokens = text.split(os.EOL);
-          textTokens = textTokens.map(str => `${str}${os.EOL}`);
-          break;
-        case Translator.TEXT_FORMAT.HTML:
-          let dom = new JSDOM(text);
-          let htmlParagraphs = dom.window.document.querySelectorAll('p');
-          for (let htmlParagraph of htmlParagraphs) {
-            textTokens.push(htmlParagraph.outerHTML);
-          }
-          break;
-      }
-
-      let buffer = [], bufferSize = 0;
-      for (let token of textTokens) {
-        if ((bufferSize + token.length) > textLimit) {
-          textArray.push(buffer);
-          buffer = new Array();
-          bufferSize = 0;
-        }
-        buffer.push(token);
-        bufferSize += token.length;
-      }
-      textArray.push(buffer);
-
-      params.textArray = textArray;
-      return await this.callApiToPostTranslate(params);
+        this.subscriptionKey = process.env.TRANSLATOR_API_KEY;
+        this.baseURL = process.env.TRANSLATOR_API_BASE_URL;
+        this.translateEndpoint = process.env.TRANSLATOR_API_TRANSLATE_ENDPOINT;
+        this.breakSentencesEndpoint = process.env.TRANSLATOR_API_BREAK_SENTENCES_ENDPOINT;        
+        this.location = process.env.TRANSLATOR_API_LOCATION;
+        this.charactersLimitPerRequest = process.env.TRANSLATOR_API_TRANSLATE_TEXT_CHARACTERS_LIMIT_PER_REQUEST;
+        this.characterslimitTotal = process.env.TRANSLATOR_API_MAX_CHARACTERS;
     }
 
     async translateText(params) {
@@ -66,21 +37,113 @@ class Translator {
       return await this.callApiToTextTranslate(params);
     }
 
+    async translatePost(params) {
+      const {text, sourceLang, targetLang, textFormat=Translator.TEXT_FORMAT.HTML} = params;
+
+      this.validate(params);
+      params.textArray = await this.breakSentences(params);
+      let translatedPost = await this.callApiToPostTranslate(params);
+      
+      return translatedPost;
+    }
+
+    validate(params) {
+      const {text, sourceLang, targetLang, textFormat=Translator.TEXT_FORMAT.HTML} = params;
+      if (text.length > this.characterslimitTotal)
+        throw new Error('Maximum character limit for translation exceeded');
+      if (targetLang == null)
+        throw new Error('Target lang cannot be null');
+    }
+
+    async breakSentences(params) {
+      const {text, textFormat=Translator.TEXT_FORMAT.HTML} = params;
+      let textTokens = null;
+
+      switch (textFormat) {
+        case Translator.TEXT_FORMAT.PLAIN_TEXT:
+          textTokens = text.split(os.EOL);
+          textTokens = textTokens.map(str => `${str}${os.EOL}`);
+          break;
+          
+        case Translator.TEXT_FORMAT.HTML:
+          let positions = await this.callApiToBreakentences({...params, text});
+          textTokens = this.breakHtmlSentences(text, positions);
+          break;
+      }
+
+      return this.breakTextToPackages(textTokens);
+    }
+
+    breakHtmlSentences(text, positions) {
+      const regexEndSentence = /\<(\/(p|div|li|tr|pre)|br)\>\s*?$/i;
+      let buffer = [], textTokens = [];
+      let lastPos = 0;
+      for (let i = 0; i < positions.length; i++) {
+        let pos = positions[i];
+        let textPiece = text.substring(lastPos, (pos+lastPos));
+        buffer.push(textPiece);
+        if (regexEndSentence.exec(textPiece) !== null) {
+          textTokens.push(buffer.join(''));
+          buffer = [];
+        }
+        lastPos += pos;
+      }
+      return textTokens;
+    }
+
+    breakTextToPackages(textTokens) {
+      let textPackage = [], textPackages = [];
+      let textPackageSize = 0;
+
+      for (let token of textTokens) {
+        if ((textPackageSize + token.length) > this.charactersLimitPerRequest) {
+          textPackages.push(textPackage);
+          textPackage = [];
+          textPackageSize = 0;
+        }
+        textPackage.push(token);
+        textPackageSize += token.length;
+      }
+      textPackages.push(textPackage);
+
+      return textPackages;
+    }
+
+    async callApiToBreakentences(params) {
+      const {text, sourceLang} = params;
+      let convertedText = [{"Text": text}];
+
+      return await unirest
+        .post(`${this.baseURL}/${this.breakSentencesEndpoint}`)
+        .headers({
+          'Ocp-Apim-Subscription-Key': this.subscriptionKey,
+          'Ocp-Apim-Subscription-Region': this.location,
+          'Content-type': 'application/json',
+          'X-ClientTraceId': uuidv4().toString()
+        })
+        .query({
+          "api-version": "3.0",
+          "language": sourceLang
+        })
+        .type("json")
+        .send(convertedText)
+        .then((res) => {
+          if (res.error) throw new Error(res.error);
+          return res.body[0]['sentLen']
+        });     
+    }
+
     async callApiToPostTranslate(params) {
       const {textArray, sourceLang, targetLang, textFormat=Translator.TEXT_FORMAT.HTML} = params;
-      const subscriptionKey = process.env.TRANSLATOR_API_KEY;
-      const baseURL = process.env.TRANSLATOR_API_BASE_URL;
-      const endPoint = process.env.TRANSLATOR_API_TRANSLATE_ENDPOINT;
-      const location = process.env.TRANSLATOR_API_LOCATION;
 
       let result = '';
       for (let i = 0; i < textArray.length; i++) {
         let convertedTextArray = textArray[i].map((textEl) => { return {"Text": textEl} });
         let response = await unirest
-          .post(`${baseURL}/${endPoint}`)
+          .post(`${this.baseURL}/${this.translateEndpoint}`)
           .headers({
-            'Ocp-Apim-Subscription-Key': subscriptionKey,
-            'Ocp-Apim-Subscription-Region': location,
+            'Ocp-Apim-Subscription-Key': this.subscriptionKey,
+            'Ocp-Apim-Subscription-Region': this.location,
             'Content-type': 'application/json',
             'X-ClientTraceId': uuidv4().toString()
           })
@@ -114,16 +177,12 @@ class Translator {
 
     async callApiToTextTranslate(params) {
       const {plainText, sourceLang, targetLang} = params;
-      const subscriptionKey = process.env.TRANSLATOR_API_KEY;
-      const baseURL = process.env.TRANSLATOR_API_BASE_URL;
-      const endPoint = process.env.TRANSLATOR_API_TRANSLATE_ENDPOINT;
-      const location = process.env.TRANSLATOR_API_LOCATION;
 
       let response = await unirest
-        .post(`${baseURL}/${endPoint}`)
+        .post(`${this.baseURL}/${this.translateEndpoint}`)
         .headers({
-          'Ocp-Apim-Subscription-Key': subscriptionKey,
-          'Ocp-Apim-Subscription-Region': location,
+          'Ocp-Apim-Subscription-Key': this.subscriptionKey,
+          'Ocp-Apim-Subscription-Region': this.location,
           'Content-type': 'application/json',
           'X-ClientTraceId': uuidv4().toString()
         })

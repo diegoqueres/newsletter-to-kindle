@@ -139,10 +139,12 @@ class Scrapper {
             post.content = content;
             post.htmlContent = htmlContent;
         }
+
         let locale = this.feed.locale;
         let lang = locale;
         let labelAuthor = this.i18n.__('Author');
         let labelSource = this.i18n.__('Source');
+
         if (this.feed.mustBeTranslated()) {
             post = await this.translatePost(post);
             lang += `, ${this.feed.translationTarget}`;
@@ -155,28 +157,7 @@ class Scrapper {
             }
         }
 
-        let newHtmlContent = `<!DOCTYPE html>`
-        newHtmlContent += `<html>\n<head>\n`;
-        newHtmlContent += `<title>${post.title}</title>`;
-        newHtmlContent += `<meta charset="${this.feed.getEncoding()}">`;
-        newHtmlContent += `<meta http-equiv="content-language" content="${lang}">`;
-        newHtmlContent += `<meta name="description" content="${post.description}">`;
-        newHtmlContent += `<meta name="author" content="${post.author}">`;
-        newHtmlContent += `</head>\n<body>\n\n`;
-        newHtmlContent += `<article>`;
-        newHtmlContent += `<header>`;
-        if (ValidationUtils.validNonEmptyString(post.originalTitle))
-            newHtmlContent += `<h2 class="headline">${post.originalTitle}</h1>\n`;
-        newHtmlContent += `<h2 class="headline">${post.title}</h2>\n`;
-        newHtmlContent += `<div class="byline"><a href="#" rel="author">${post.author}</a> | ${post.date.toLocaleDateString(locale, {dateStyle:"long"})}</div>\n`;
-        newHtmlContent += `</header>`;
-        newHtmlContent += `${post.htmlContent}\n<hr>\n`;
-        newHtmlContent += `<p><em><strong>${labelAuthor}: </strong>${post.author}</em><br />`;
-        newHtmlContent += `<em><strong>${labelSource}: </strong>${post.link}</em></p>`;
-        newHtmlContent += `</article>`;
-        newHtmlContent += `</body>\n</html>`;
-        post.htmlContent = newHtmlContent;
-        
+        post.htmlContent = this.generateHtmlContent({post, lang, labelAuthor, labelSource, locale});
         return post;
     }
 
@@ -208,6 +189,33 @@ class Scrapper {
         post.htmlContent = await translator.translatePost(translateParams);
 
         return post;
+    }
+
+    generateHtmlContent(params) {
+        const {post, lang, labelAuthor, labelSource, locale} = params;
+
+        let newHtmlContent = `<!DOCTYPE html>`
+        newHtmlContent += `<html>\n<head>\n`;
+        newHtmlContent += `<title>${post.title}</title>`;
+        newHtmlContent += `<meta charset="${this.feed.getEncoding()}">`;
+        newHtmlContent += `<meta http-equiv="content-language" content="${lang}">`;
+        newHtmlContent += `<meta name="description" content="${post.description}">`;
+        newHtmlContent += `<meta name="author" content="${post.author}">`;
+        newHtmlContent += `</head>\n<body>\n\n`;
+        newHtmlContent += `<article>`;
+        newHtmlContent += `<header>`;
+        if (ValidationUtils.validNonEmptyString(post.originalTitle))
+            newHtmlContent += `<h2 class="headline">${post.originalTitle}</h1>\n`;
+        newHtmlContent += `<h2 class="headline">${post.title}</h2>\n`;
+        newHtmlContent += `<div class="byline"><a href="#" rel="author">${post.author}</a> | ${post.date.toLocaleDateString(locale, {dateStyle:"long"})}</div>\n`;
+        newHtmlContent += `</header>`;
+        newHtmlContent += `${post.htmlContent}\n<hr>\n`;
+        newHtmlContent += `<p><em><strong>${labelAuthor}: </strong>${post.author}</em><br />`;
+        newHtmlContent += `<em><strong>${labelSource}: </strong>${post.link}</em></p>`;
+        newHtmlContent += `</article>`;
+        newHtmlContent += `</body>\n</html>`;
+
+        return newHtmlContent;
     }
 
     async scrapPostByUrl(postUrl) {

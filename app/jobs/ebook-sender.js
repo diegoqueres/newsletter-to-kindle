@@ -45,4 +45,4 @@ async function sendMail(post, htmlFile) {
   await emailSender.sendMail(emailData, true);
 }
 
-module.exports = ebookSender;
+module.exports = {ebookSender};

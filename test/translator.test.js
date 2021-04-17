@@ -1,6 +1,5 @@
 const test = require('tape');
 const Translator = require('../app/services/translator');
-const ValidationUtils = require('../app/utils/validation-utils');
 
 test('Test post translator call', async (t) => {
     let text = '<p>Hello world!</p>';
@@ -145,5 +144,18 @@ test('Test bilingual translate', async (t) => {
     let result = await translator.translatePost(translateParams);
 
     t.assert( result.length > 0, 'it is returning non empty result');
+    t.end();
+});
+
+
+test('Test breaksentence endpoint', async (t) => {
+    let text = '<p>Alice was beginning to get very tired of sitting by her sister on the bank</p>';
+    let sourceLang = 'en-US';
+
+    const translator = new Translator(Translator.MODE.BILINGUAL);
+    let result = await translator.callApiToBreakentences({text, sourceLang});
+
+    t.assert( result.length > 0, 'it is returning non empty result');
+    t.assert( result[0] == 81, 'it is returning correct first paragraph length');
     t.end();
 });
