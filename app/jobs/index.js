@@ -1,4 +1,4 @@
-const ebookSender = require('./ebook-sender');
+const {ebookSender} = require('./ebook-sender');
 require('dotenv').config();
 
 (async () => {
