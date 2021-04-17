@@ -1,6 +1,6 @@
-# kindle-periodical-sender
+# newsletter-to-kindle
 
-**kindle-periodical-sender** is a NodeJS application to create a service for reading RSS feeds regularly and deliver content to Kindle devices. 
+**newsletter-to-kindle** is a NodeJS application to create a service for reading RSS feeds regularly and deliver content to Kindle devices. 
 
 Content is delivered using _Amazon&#39;s Send to Kindle service_. See more at [https://www.amazon.com/gp/sendtokindle/email](https://www.amazon.com/gp/sendtokindle/email).
 
@@ -8,12 +8,15 @@ Content is delivered using _Amazon&#39;s Send to Kindle service_. See more at [h
 I get a lot of mailings in my email talking about very interesting subjects. But as a regular Kindle user, I was unhappy about having to read them on my cell phone or computer. I missed reading this content on my Kindle device.
 So I was thinking about creating a project for this purpose, researching how it could work. I saw that most mailings had RSS feeds to subscribe and also Amazon's Send to Kindle service. 
 I developed an initial prototype to send the content of a Mailing only. And when I was checking the results, little by little, new ideas were emerging and I made more improvements until the project we have today. 
+The application may be used in the future by content creators who wish to make their newsletter content available to their audience.
+
+## How it works?
+![Infographic](/images/infographic.gif)
 
 ## Requirements
 1. SMTP server and e-mail to post and convert articles to Kindle e-mail;
 2. Configure Send to Kindle to receive messages from your e-mail;
 3. MySQL server;
-
 
 ## Installation
 Clone the project and them run to install Node packages.
@@ -27,7 +30,7 @@ After that, you must create an .env file _(like the template bellow)_, entering 
 DEBUG=<eg:true/false>
 
 #service config
-SERVICE_NAME=<Service name of application, eg: Kindle Periodical Sender>
+SERVICE_NAME=<Service name of application, eg: Newsletter to Kindle>
 SERVICE_EMAIL_SUBJECT=
 
 #kindle config
@@ -102,7 +105,7 @@ You can run the web server with command: `npm start` _(although the project has 
 🚀 _Under construction_ 🚧
 
 ## Version
-_0.3.0: Experimental version._
+_0.4.0: Experimental version._
 
 ## Features
 - [x] Read feed content and post articles to a single Kindle user;

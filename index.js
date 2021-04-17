@@ -8,7 +8,7 @@ const port = process.env.PORT || 8080;
     const router = express.Router();
 
     router.get('/', (req, res) => {
-        res.send('<h1>Kindle periodical sender is running</h1>');
+        res.send('<h1>Newsletter to kindle is running</h1>');
     });
 
     app.use('/', router);
