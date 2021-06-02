@@ -105,13 +105,13 @@ You can run the web server with command: `npm start` _(although the project has 
 🚀 _Under construction_ 🚧
 
 ## Version
-_0.4.0: Experimental version._
+_0.5.0: Experimental version._
 
 ## Features
 - [x] Read feed content and post articles to a single Kindle user;
 - [x] Registration of multiple feeds;
 - [x] Article translations (full or bilingual translation, based on Azure Translator API);
-- [ ] Improve and implement all necessary tests;
+- [x] Improve and implement all necessary tests;
 - [ ] Log of submitted articles to improve the delivery verification _(today it is very simple)_;
 
 
