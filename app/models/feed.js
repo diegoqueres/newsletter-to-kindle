@@ -37,13 +37,14 @@ module.exports = (sequelize, DataTypes) => {
       return this.partial; 
     }
 
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      Feed.belongsTo(models.User, { foreignKey: 'user_id' });
+
+      Feed.belongsToMany(models.Subscriber, { 
+        through: 'Subscription',
+        as: 'subscribers',
+        foreignKey: "feed_id",  
+      });
     }
   };
 
