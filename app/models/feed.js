@@ -38,12 +38,12 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     static associate(models) {
-      Feed.belongsTo(models.User, { foreignKey: 'user_id' });
+      Feed.belongsTo(models['User'], { foreignKey: 'userId' });
 
-      Feed.belongsToMany(models.Subscriber, { 
+      Feed.belongsToMany(models['Subscriber'], { 
         through: 'Subscription',
         as: 'subscribers',
-        foreignKey: "feed_id",  
+        foreignKey: "feedId",  
       });
     }
   };

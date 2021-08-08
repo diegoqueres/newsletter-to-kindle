@@ -2,13 +2,14 @@
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Subscriber extends Model {
     static associate(models) {
-      Subscriber.belongsToMany(models.Feed, { 
+      Subscriber.belongsToMany(models['Feed'], { 
         through: 'Subscriptions',
         as: 'subscriptions',
-        foreignKey: "subscription_id",  
+        foreignKey: "subscriptionId",  
       });
     }
   };

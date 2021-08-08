@@ -1,10 +1,12 @@
 'use strict';
-const Feed = require('Feed');
+const {
+  Model
+} = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      User.hasMany(models.Feed);
+      User.hasMany(models['Feed']);
     }
   };
 
