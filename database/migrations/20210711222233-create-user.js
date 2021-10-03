@@ -9,16 +9,39 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       name: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       email: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       password: {
-        type: Sequelize.STRING
+        allowNull: false,
+        type: Sequelize.STRING(128)
+      },
+      salt: {
+        allowNull: false,
+        type: Sequelize.STRING(100)
       },
       super: {
+        allowNull: false,
+        defaultValue: false,
         type: Sequelize.BOOLEAN
+      },
+      pendingPassword: {
+        allowNull: false,
+        defaultValue: false,
+        type: Sequelize.BOOLEAN
+      },
+      pendingConfirm: {
+        allowNull: false,
+        defaultValue: false,
+        type: Sequelize.BOOLEAN
+      },
+      confirmCode: {
+        allowNull: true,
+        type: Sequelize.SMALLINT       
       },
       createdAt: {
         allowNull: false,
@@ -40,7 +63,9 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
+    //removing foreign keys
+    await queryInterface.removeColumn('Feeds', 'userId');
+    
     await queryInterface.dropTable('Users');
-    await queryInterface.removeColumn('Feed', 'userId');
   }
 };

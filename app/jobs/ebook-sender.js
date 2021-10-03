@@ -1,5 +1,5 @@
 const Scrapper = require('../services/scrapper');
-const EmailSender = require('../services/email-sender');
+const EmailService = require('../services/email-service');
 const TempWriter = require('../utils/temp-file-writer');
 const ConversionUtils = require('../utils/conversion-utils');
 const ValidationUtils = require('../utils/validation-utils');
@@ -38,11 +38,11 @@ function getDebug() {
 }
 
 async function sendMail(post, htmlFile) {
-  const emailSender = new EmailSender();
+  const emailService = new EmailService();
   emailData.content = post.content;
   emailData.htmlContent = post.htmlContent;
   emailData.attachments.push(htmlFile);
-  await emailSender.sendMail(emailData, true);
+  await emailService.sendMail(emailData, true);
 }
 
 module.exports = {ebookSender};
