@@ -6,13 +6,14 @@ const {Model, Sequelize} = require('sequelize');
 const basename = path.basename(__filename);
 const config = require(__dirname + '/../../config/database.js');
 const db = {};
+const ignoredFiles = ['post.js'];
 
 let sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 fs
   .readdirSync(__dirname)
   .filter(file => {
-    return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
+    return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js') && !ignoredFiles.includes(file);
   })
   .forEach(file => {
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);

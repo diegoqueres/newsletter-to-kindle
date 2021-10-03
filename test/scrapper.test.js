@@ -1,5 +1,5 @@
 const {Feed} = require('../app/models');
-const Post = require('../app/entities/post');
+const Post = require('../app/models/post');
 const Scrapper = require('../app/services/scrapper');
 const DateUtils = require('../app/utils/date-utils');
 const ValidationUtils = require('../app/utils/validation-utils');
