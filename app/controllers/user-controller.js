@@ -28,6 +28,7 @@ class UserController {
 
         if (loggedUser.pendingPassword && loggedUser.id === requestedId) {
             res.json(loggedUser);
+            next(res);
         } else {
             throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You must change your password before proceeding with this operation.');
         }
@@ -37,6 +38,7 @@ class UserController {
                 throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to access another user\'s data');     
             }
             res.json(loggedUser);
+            next(res);
         }
 
         const requestedUser = await UserController.userService.findById(requestedId);
@@ -46,32 +48,30 @@ class UserController {
         res.json(requestedUser);
     }
 
-    async delete(req, res) {
+    async remove(req, res) {
         UserController.validate(req, res);
         const {loggedUser, permissionOnlyHimself} = await UserController.getPermissions(req, false);
         const requestedId = parseInt(req.params.id);
 
-        if (loggedUser.pendingPassword && loggedUser.id === requestedId) {
-            await UserController.userService.delete(loggedUser);
-            res.status(HttpStatus.NO_CONTENT).json('');
-        } else {
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You must change your password before proceeding with this operation.');
-        }
-
         if (permissionOnlyHimself) {
-            if (loggedUser.id !== requestedId) {
+            if (loggedUser.id !== requestedId) 
                 throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to delete another user');     
-            }
-            await UserController.userService.delete(loggedUser);
-            res.status(HttpStatus.NO_CONTENT).json('');
+            if (loggedUser.pendingPassword)
+                throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You must change your password before proceeding with this operation.');
+
+            await UserController.userService.remove(loggedUser);
+            res.status(HttpStatus.NO_CONTENT).json();
+            next(res);
         }
+        if (loggedUser.id === requestedId && loggedUser.pendingPassword) 
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You must change your password before proceeding with this operation.');
 
         const requestedUser = await UserController.userService.findById(requestedId);
         if (requestedUser == null) 
             throw new APIError('Not found', HttpStatus.NOT_FOUND, 'User not found');
 
-        await UserController.userService.delete(requestedUser);
-        res.status(HttpStatus.NO_CONTENT).json('');
+        await UserController.userService.remove(requestedUser);
+        res.status(HttpStatus.NO_CONTENT).json();
     }
 
     async create(req, res) {
@@ -100,6 +100,7 @@ class UserController {
             const {name, email, password} = req.body;
             const editedUser = await UserController.userService.edit(loggedUser, {name, email, password});
             res.status(HttpStatus.OK).json(editedUser);
+            next(res);
         }  
 
         const userDto = {name, email, password, pendingConfirm} = req.body;

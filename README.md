@@ -56,21 +56,21 @@ Now you must run database migrations.
 npx sequelize-cli db:migrate
 ```
 
-Change seed file _(in &#39;seeders&#39; folder)_ inserting your feeds _(like the model bellow)_.
+Change seed file _(in &#39;seeders&#39; folder)_ inserting your newsletters _(like the model bellow)_.
 ```javascript
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert('Feeds', [
+    await queryInterface.bulkInsert('Newsletters', [
       {
-        name: 'My Feed',
-        url: 'https://www.user.com/feed',
+        name: 'My Newsletter',
+        feedUrl: 'https://www.user.com/newsletter/feed',
         author: 'User',
         partial: false,
         subject: 'Daily Message',
         locale: 'en-US',
         articleSelector: null,
         maxPosts: 1,
-        updatePeriodicity: Feed.PERIODICITY.DAILY,
+        updatePeriodicity: Newsletter.PERIODICITY.DAILY,
         dayOfWeek: null,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -80,13 +80,13 @@ module.exports = {
       /*
       {   
           name: ..........................
-          //Insert more feeds, as you wish...
+          //Insert more newsletters, as you wish...
       }
       */
     ], {});   
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('Feeds', null, {});
+    await queryInterface.bulkDelete('Newsletters', null, {});
   }
 };
 ```
@@ -108,7 +108,7 @@ You can run the web server with command: `npm start` _(although the project has 
 _0.5.0: Experimental version._
 
 ## Features
-- [x] Read feed content and post articles to a single Kindle user;
+- [x] Read newsletter feed content and post articles to a single Kindle user;
 - [x] Registration of multiple feeds;
 - [x] Article translations (full or bilingual translation, based on Azure Translator API);
 - [x] Improve and implement all necessary tests;

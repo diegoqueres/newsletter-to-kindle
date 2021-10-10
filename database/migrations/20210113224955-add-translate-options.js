@@ -4,7 +4,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     return Promise.all([
       queryInterface.addColumn(
-        'Feeds', // table name
+        'Newsletters', // table name
         'translationTarget', // new field name
         {
           type: Sequelize.STRING,
@@ -12,7 +12,7 @@ module.exports = {
         },
       ),
       queryInterface.addColumn(
-        'Feeds',
+        'Newsletters',
         'translationMode',
         {
           type: Sequelize.INTEGER,
@@ -25,8 +25,8 @@ module.exports = {
   down: async (queryInterface, Sequelize) => {
     // logic for reverting the changes
     return Promise.all([
-      queryInterface.removeColumn('Feeds', 'translationTarget'),
-      queryInterface.removeColumn('Feeds', 'translationMode'),
+      queryInterface.removeColumn('Newsletters', 'translationTarget'),
+      queryInterface.removeColumn('Newsletters', 'translationMode'),
     ]);
   }
 };

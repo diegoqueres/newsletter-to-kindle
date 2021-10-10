@@ -5,7 +5,7 @@ const PROTECTED_ATTRIBUTES = ['password', 'salt', 'confirmCode'];
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      User.hasMany(models['Feed']);
+      User.hasMany(models['Newsletter']);
     }
 
     toJSON () {

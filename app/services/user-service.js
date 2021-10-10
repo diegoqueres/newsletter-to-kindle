@@ -94,11 +94,11 @@ class UserService {
         });
     }
 
-    async delete(user) {
-        this.deleteById(user.id);
+    async remove(user) {
+        this.removeById(user.id);
     }
 
-    async deleteById(id) {
+    async removeById(id) {
         User.destroy({
             where: {id}
         });

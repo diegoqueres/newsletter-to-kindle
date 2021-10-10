@@ -3,27 +3,27 @@ const EmailService = require('../services/email-service');
 const TempWriter = require('../utils/temp-file-writer');
 const ConversionUtils = require('../utils/conversion-utils');
 const ValidationUtils = require('../utils/validation-utils');
-const {Feed} = require('../models');
+const {Newsletter} = require('../models');
 const emailData = require('../../config/email-data');
 
 const ebookSender = async() => {
     try {
-      const feeds = await Feed.findAll({
+      const newsletters = await Newsletter.findAll({
         where: {active: true}
       });
       
-      for (let feed of feeds) {
+      for (let newsletter of newsletters) {
         try {
-          let scrapper = new Scrapper(feed, getDebug());
+          let scrapper = new Scrapper(newsletter, getDebug());
           let posts = await scrapper.getPosts();
           for (let post of posts) {
             post = await scrapper.scrapPost(post); 
             const htmlFile = 
-              TempWriter.writeTempFileWithSubjectAndTitle(feed.subject, post.title, 'htm', post.htmlContent, feed.getEncoding());
+              TempWriter.writeTempFileWithSubjectAndTitle(newsletter.subject, post.title, 'htm', post.htmlContent, newsletter.getEncoding());
             await sendMail(post, htmlFile);
           }
         } catch (err) {
-          console.log(`Error when scrap feed ${feed.name} :${err}`);
+          console.log(`Error when scrap feed ${newsletter.name} :${err}`);
         }
       };
     } catch (err) {

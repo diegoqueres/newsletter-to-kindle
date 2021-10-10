@@ -3,7 +3,7 @@ const ValidationUtils = require('../utils/validation-utils');
 const {Model} = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class Feed extends Model {
+  class Newsletter extends Model {
     static PERIODICITY = {
       LAST: 1,
       DAILY: 2,
@@ -38,19 +38,19 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     static associate(models) {
-      Feed.belongsTo(models['User'], { foreignKey: 'userId' });
+      Newsletter.belongsTo(models['User'], { foreignKey: 'userId' });
 
-      Feed.belongsToMany(models['Subscriber'], { 
+      Newsletter.belongsToMany(models['Subscriber'], { 
         through: 'Subscription',
         as: 'subscribers',
-        foreignKey: "feedId",  
+        foreignKey: "newsletterId",  
       });
     }
   };
 
-  Feed.init({
+  Newsletter.init({
     name: DataTypes.STRING,
-    url: DataTypes.STRING,
+    feedUrl: DataTypes.STRING,
     author: DataTypes.STRING,
     partial: DataTypes.BOOLEAN,
     subject: DataTypes.STRING,
@@ -64,8 +64,8 @@ module.exports = (sequelize, DataTypes) => {
     active: DataTypes.BOOLEAN
   }, {
     sequelize,
-    modelName: 'Feed'
+    modelName: 'Newsletter'
   });
 
-  return Feed;
+  return Newsletter;
 };

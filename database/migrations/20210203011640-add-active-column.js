@@ -4,7 +4,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     return Promise.all([
       queryInterface.addColumn(
-        'Feeds', // table name
+        'Newsletters', // table name
         'active', // new field name
         {
           type: Sequelize.DataTypes.BOOLEAN,
@@ -18,7 +18,7 @@ module.exports = {
   down: async (queryInterface, Sequelize) => {
     // logic for reverting the changes
     return Promise.all([
-      queryInterface.removeColumn('Feeds', 'active'),
+      queryInterface.removeColumn('Newsletters', 'active'),
     ]);
   }
 };
