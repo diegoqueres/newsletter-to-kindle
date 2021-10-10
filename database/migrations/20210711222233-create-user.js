@@ -53,7 +53,7 @@ module.exports = {
       }
     });
 
-    await queryInterface.addColumn('Feeds', 'userId', {
+    await queryInterface.addColumn('Newsletters', 'userId', {
         type: Sequelize.INTEGER,
         references: { model: 'Users', key: 'id' },
         onUpdate: 'CASCADE',
@@ -64,7 +64,7 @@ module.exports = {
 
   down: async (queryInterface, Sequelize) => {
     //removing foreign keys
-    await queryInterface.removeColumn('Feeds', 'userId');
+    await queryInterface.removeColumn('Newsletters', 'userId');
     
     await queryInterface.dropTable('Users');
   }

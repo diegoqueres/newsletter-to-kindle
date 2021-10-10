@@ -8,7 +8,7 @@ const Post = require('../models/post');
 const DateUtils = require('../utils/date-utils');
 const ValidationUtils = require('../utils/validation-utils');
 const ConversionUtils = require('../utils/conversion-utils');
-const {Feed} = require('../models');
+const {Newsletter} = require('../models');
 const Translator = require('./translator');
 require('dotenv').config();
 
@@ -16,23 +16,23 @@ class Scrapper {
     static timeoutMin = 30 * 1000;
     static timeoutMax = 90 * 1000;
 
-    constructor(feed = null, debug = false){
+    constructor(newsletter = null, debug = false){
         this.debug = debug;
-        this._feed = feed;
+        this._newsletter = newsletter;
         this.browser = null;
         this.page = null;
         this.initI18N();
     }
 
-    get feed() {
-        return this._feed;
+    get newsletter() {
+        return this._newsletter;
     }
-    set feed(feed) {
-        this._feed = feed;
+    set newsletter(newsletter) {
+        this._newsletter = newsletter;
     }
 
     initI18N() {
-        this.i18n = this.getNewI18N(this.feed.locale);
+        this.i18n = this.getNewI18N(this.newsletter.locale);
     }
 
     getNewI18N(locale) {
@@ -55,7 +55,7 @@ class Scrapper {
 
     async getPosts() {
         let parser = new Parser();
-        let sourceFeed = await parser.parseURL(this.feed.url);
+        let sourceFeed = await parser.parseURL(this.newsletter.feedUrl);
         let feedItems = this.getFeedItems(sourceFeed);
 
         let posts = [];
@@ -67,7 +67,7 @@ class Scrapper {
                 link: feedItem.link, 
                 description: feedItem.contentSnippet
             });
-            if (!this.feed.partial) {
+            if (!this.newsletter.partial) {
                 const htmlContent = feedItem["content:encoded"];
                 post.content = ConversionUtils.htmlToPlainText(htmlContent);
                 post.htmlContent = sanitizeHtml(htmlContent);
@@ -93,22 +93,22 @@ class Scrapper {
         let today = new Date();
         let feedItems = [];
 
-        switch (this.feed.updatePeriodicity) {
-            case Feed.PERIODICITY.DAILY:
+        switch (this.newsletter.updatePeriodicity) {
+            case Newsletter.PERIODICITY.DAILY:
                 feedItems = sourceFeed.items.filter((item) => {
                     item.date = new Date(item.isoDate);
                     return DateUtils.isSameDate( today, item.date );
                 }); 
                 break;
 
-            case Feed.PERIODICITY.WEEKLY:
+            case Newsletter.PERIODICITY.WEEKLY:
                 feedItems = sourceFeed.items.filter((item) => {
                     item.date = new Date(item.isoDate);
-                    return (DateUtils.isDateInThisWeek(item.date) && (this.feed.dayOfWeek == today.getDay()));
+                    return (DateUtils.isDateInThisWeek(item.date) && (this.newsletter.dayOfWeek == today.getDay()));
                 }); 
                 break;
 
-            case Feed.PERIODICITY.LAST:
+            case Newsletter.PERIODICITY.LAST:
             default:
                 let feedItem = sourceFeed.items.reduce((prev, current) => {
                     prev.date = new Date(prev.isoDate);
@@ -130,26 +130,26 @@ class Scrapper {
     }
 
     limitFeedItemsToMax(feedItems) {
-        return feedItems.slice(0, this.feed.maxPosts);
+        return feedItems.slice(0, this.newsletter.maxPosts);
     }
 
     async scrapPost(post) {
-        if (this.feed.mustBeScrapped()) {
+        if (this.newsletter.mustBeScrapped()) {
             let {content, htmlContent} = await this.scrapPostByUrl(post.link);
             post.content = content;
             post.htmlContent = htmlContent;
         }
 
-        let locale = this.feed.locale;
+        let locale = this.newsletter.locale;
         let lang = locale;
         let labelAuthor = this.i18n.__('Author');
         let labelSource = this.i18n.__('Source');
 
-        if (this.feed.mustBeTranslated()) {
+        if (this.newsletter.mustBeTranslated()) {
             post = await this.translatePost(post);
-            lang += `, ${this.feed.translationTarget}`;
-            if (this.feed.translationMode == Translator.MODE.FULL) {
-                locale = this.feed.translationTarget;
+            lang += `, ${this.newsletter.translationTarget}`;
+            if (this.newsletter.translationMode == Translator.MODE.FULL) {
+                locale = this.newsletter.translationTarget;
                 lang = locale;
                 let i18n = this.getNewI18N(locale);
                 labelAuthor = i18n.__('Author');
@@ -162,11 +162,11 @@ class Scrapper {
     }
 
     async translatePost(post) {
-        const translator = new Translator(this.feed.translationMode);
+        const translator = new Translator(this.newsletter.translationMode);
         const translateParams = {
             text: null, 
-            sourceLang: this.feed.locale, 
-            targetLang: this.feed.translationTarget, 
+            sourceLang: this.newsletter.locale, 
+            targetLang: this.newsletter.translationTarget, 
             textFormat: null
         };
 
@@ -197,7 +197,7 @@ class Scrapper {
         let newHtmlContent = `<!DOCTYPE html>`
         newHtmlContent += `<html>\n<head>\n`;
         newHtmlContent += `<title>${post.title}</title>`;
-        newHtmlContent += `<meta charset="${this.feed.getEncoding()}">`;
+        newHtmlContent += `<meta charset="${this.newsletter.getEncoding()}">`;
         newHtmlContent += `<meta http-equiv="content-language" content="${lang}">`;
         newHtmlContent += `<meta name="description" content="${post.description}">`;
         newHtmlContent += `<meta name="author" content="${post.author}">`;
@@ -222,12 +222,12 @@ class Scrapper {
         await this.initBrowser();
         await this.navigateToPage(postUrl);
  
-        let content = await this.page.$eval(this.feed.articleSelector, node => node.innerText);
+        let content = await this.page.$eval(this.newsletter.articleSelector, node => node.innerText);
         let htmlContent = sanitizeHtml(
-            await this.page.$eval(this.feed.articleSelector, node => node.innerHTML)
+            await this.page.$eval(this.newsletter.articleSelector, node => node.innerHTML)
         );  
         // When we learn more about attaching images to the Kindle-To-Email service, we will allow <img> tags
-        // let htmlContent = await this.page.$eval(this.feed.articleSelector, node => node.innerHTML);
+        // let htmlContent = await this.page.$eval(this.newsletter.articleSelector, node => node.innerHTML);
         // htmlContent = sanitizeHtml(htmlContent, {
         //     allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img' ])
         // });

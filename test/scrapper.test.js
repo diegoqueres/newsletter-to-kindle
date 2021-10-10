@@ -1,4 +1,4 @@
-const {Feed} = require('../app/models');
+const {Newsletter} = require('../app/models');
 const Post = require('../app/models/post');
 const Scrapper = require('../app/services/scrapper');
 const DateUtils = require('../app/utils/date-utils');
@@ -10,7 +10,7 @@ let feed, scrapper, posts, scrappedPosts;
 
 
 beforeAll(() => {
-    feed = getFeedToTest();
+    feed = getNewsletterToTest();
     scrapper = new Scrapper(feed, true);
     initializeMocks();
 });
@@ -96,11 +96,11 @@ describe('Scrap post correctly', () => {
 });
 
 
-function getFeedToTest() {
-    return Feed.build({
+function getNewsletterToTest() {
+    return Newsletter.build({
         name: 'Diary of the Apocalypse',
-        url: 'https://www.sarahconnor.com/newsletter/feed',
-        updatePeriodicity: Feed.PERIODICITY.DAILY,
+        feedUrl: 'https://www.sarahconnor.com/newsletter/feed',
+        updatePeriodicity: Newsletter.PERIODICITY.DAILY,
         author: 'Sarah Connor',
         partial: true,
         subject: 'Articial Intelligence',

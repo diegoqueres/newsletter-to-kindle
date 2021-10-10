@@ -40,7 +40,7 @@ routes.get('/user/:id', [
 routes.delete('/user/:id', [
     Jwt.verify,
     param('id', 'id must be a number').isInt()
-], userController.delete);
+], userController.remove);
 
 routes.post('/user', [
     Jwt.verify,
@@ -60,6 +60,78 @@ routes.post('/user/:id/promote', [
     Jwt.verify,
     param('id', 'id must be a number').isInt()
 ], userController.promote);
+//----------------------------------------------------------------
+
+// Newsletters
+const NewsletterController = require('../app/controllers/newsletter-controller');
+const newsletterController = new NewsletterController();
+
+routes.get('/newsletter', [
+    Jwt.verify,
+    query('page', 'page must be a number greather than 0').if(query('page').exists()).isInt({ min:1 }),
+    query('size', 'size must be a number greather than 0').if(query('size').exists()).isInt({ min:1 })
+], newsletterController.listAll);
+
+routes.get('/newsletter/:id', [
+    Jwt.verify,
+    param('id', 'id must be a number').isInt()
+], newsletterController.findById);
+
+routes.get('/newsletter/logged-user', [
+    Jwt.verify,
+    query('page', 'page must be a number greather than 0').if(query('page').exists()).isInt({ min:1 }),
+    query('size', 'size must be a number greather than 0').if(query('size').exists()).isInt({ min:1 })
+], newsletterController.listAllFromLoggedUser);
+
+routes.post('/newsletter', [
+    Jwt.verify,
+    check('name', `name must be provided and have between ${nameMin} and ${nameMax} characters`).isLength({ min: nameMin, max: nameMax}),
+    check('feedUrl', 'feedUrl must be valid').isURL(),
+    check('author', `author must have between ${nameMin} and ${nameMax} characters`).isLength({ min: nameMin, max: nameMax}),
+    check('partial', 'partial must be a boolean and must be provided').isBoolean(),
+    check('subject', 'subject must be a string').if(body('subject').exists({checkNull: true})).isString(),
+    check('locale', 'locale must be valid').isLocale(),
+    check('articleSelector', 'articleSelector must be a string').if(body('articleSelector').exists({checkNull: true})).isString(),
+    check('updatePeriodicity', 'updatePeriodicity must be a number').isInt(),
+    check('dayOfWeek', 'dayOfWeek must be a number').if(body('dayOfWeek').exists({checkNull: true})).isInt(),
+    check('translationTarget', 'translationTarget must be a number').if(body('translationTarget').exists({checkNull: true})).isLocale(),
+    check('translationMode', 'translationMode must be a number').if(body('translationMode').exists({checkNull: true})).isInt(),
+    check('active', 'active must be a boolean and must be provided').isBoolean(),
+    check('userId', 'userId must be a number and must be provided').isInt()
+], newsletterController.create);
+
+routes.put('/newsletter/:id', [
+    Jwt.verify,
+    param('id', 'id must be a number').isInt(),
+    check('name', `name must be provided and have between ${nameMin} and ${nameMax} characters`).isLength({ min: nameMin, max: nameMax}),
+    check('feedUrl', 'feedUrl must be valid').isURL(),
+    check('author', `author must have between ${nameMin} and ${nameMax} characters`).isLength({ min: nameMin, max: nameMax}),
+    check('partial', 'partial must be a boolean and must be provided').isBoolean(),
+    check('subject', 'subject must be a string').if(body('subject').exists({checkNull: true})).isString(),
+    check('locale', 'locale must be valid').isLocale(),
+    check('articleSelector', 'articleSelector must be a string').if(body('articleSelector').exists({checkNull: true})).isString(),
+    check('updatePeriodicity', 'updatePeriodicity must be a number').isInt(),
+    check('dayOfWeek', 'dayOfWeek must be a number').if(body('dayOfWeek').exists({checkNull: true})).isInt(),
+    check('translationTarget', 'translationTarget must be a number').if(body('translationTarget').exists({checkNull: true})).isLocale(),
+    check('translationMode', 'translationMode must be a number').if(body('translationMode').exists({checkNull: true})).isInt(),
+    check('active', 'active must be a boolean and must be provided').isBoolean(),
+    check('userId', 'userId must be a number and must be provided').isInt()
+], newsletterController.edit);
+
+routes.patch('/newsletter/:id/activate', [
+    Jwt.verify,
+    param('id', 'id must be a number').isInt()
+], newsletterController.activate);
+
+routes.patch('/newsletter/:id/deactivate', [
+    Jwt.verify,
+    param('id', 'id must be a number').isInt()
+], newsletterController.deactivate);
+
+routes.delete('/newsletter/:id', [
+    Jwt.verify,
+    param('id', 'id must be a number').isInt()
+], newsletterController.remove);
 //----------------------------------------------------------------
 
 module.exports = routes;
