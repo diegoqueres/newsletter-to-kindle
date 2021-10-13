@@ -4,6 +4,7 @@ const { validationResult } = require('express-validator');
 const UserService = require('../services/user-service');
 const NewsletterService = require('../services/newsletter-service');
 const Pagination = require('../libs/pagination');
+const {userLogger} = require('../../config/logger');
 
 class NewsletterController {
     static userService = new UserService();
@@ -55,6 +56,7 @@ class NewsletterController {
 
         const createdNewsletter = await NewsletterController.newsletterService.save(newsletterDto);
         res.status(HttpStatus.CREATED).json(createdNewsletter);
+        NewsletterController.logActivity(createdNewsletter, 'was created', loggedUser);
     }
 
     async edit(req, res) {
@@ -75,6 +77,7 @@ class NewsletterController {
 
         const editedNewsletter = await NewsletterController.newsletterService.edit(requestedNewsletter, newsletterDto);
         res.status(HttpStatus.OK).json(editedNewsletter);
+        NewsletterController.logActivity(editedNewsletter, 'was edited', loggedUser);
     }
 
     async activate(req, res) {
@@ -90,10 +93,13 @@ class NewsletterController {
             throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to edit newsletters of another users');              
 
         NewsletterController.newsletterService.activate(requestedNewsletter)
-            .then(res.json({
-                message: 'Newsletter was activated successfully',
-                requestedNewsletter
-            }));   
+            .then(() => {
+                res.status(HttpStatus.OK).json({
+                    message: 'Newsletter was activated successfully',
+                    requestedNewsletter
+                });
+                NewsletterController.logActivity(requestedNewsletter, 'was activated', loggedUser);
+            });
     }
 
     async deactivate(req, res) {
@@ -109,10 +115,13 @@ class NewsletterController {
             throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to edit newsletters of another users');              
 
         NewsletterController.newsletterService.deactivate(requestedNewsletter)
-            .then(res.json({
-                message: 'Newsletter was deactivated successfully',
-                requestedNewsletter
-            }));          
+            .then(() => {
+                res.status(HttpStatus.OK).json({
+                    message: 'Newsletter was deactivated successfully',
+                    requestedNewsletter
+                });
+                NewsletterController.logActivity(requestedNewsletter, 'was deactivated', loggedUser);
+            });     
     }
 
     async remove(req, res) {
@@ -128,8 +137,10 @@ class NewsletterController {
             throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to edit newsletters of another users');              
 
         NewsletterController.newsletterService.remove(requestedNewsletter)
-            .then(res.status(HttpStatus.NO_CONTENT))
-            .then(res.json());            
+            .then(() => {
+                res.status(HttpStatus.NO_CONTENT).json();
+                NewsletterController.logActivity(requestedNewsletter, 'was removed', loggedUser);
+            });            
     }
 
     static async getPermissions(req, blockedByChangePassword = true) {
@@ -153,6 +164,12 @@ class NewsletterController {
         const errors = validationResult(req);
         if (!errors.isEmpty()) 
           return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({errors: errors.array()});
+    }
+
+    static logActivity(entity, action, loggedUser) {
+        const logMessage = `${entity.constructor.name} #${entity.id} "${entity.name}" ${action}.`;
+        const meta = loggedUser ? {loggedUser: {id: loggedUser.id, name: loggedUser.name}} : null;
+        userLogger.info(logMessage, meta);
     }
 }
 

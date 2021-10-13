@@ -64,7 +64,7 @@ module.exports = (sequelize, DataTypes) => {
     active: DataTypes.BOOLEAN
   }, {
     sequelize,
-    modelName: 'Newsletter'
+    modelName: 'Newsletter',
   });
 
   return Newsletter;
