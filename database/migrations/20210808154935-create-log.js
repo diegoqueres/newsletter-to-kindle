@@ -8,17 +8,18 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      description: {
-        type: Sequelize.STRING(1500) 
+      level: {
+        type: Sequelize.STRING(15) 
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+      message: {
+        type: Sequelize.STRING(1024) 
       },
-      updatedAt: {
-        allowNull: false,
+      meta: {
+        type: Sequelize.STRING
+      },            
+      timestamp: {
         type: Sequelize.DATE
-      }
+      },    
     });
   },
   down: async (queryInterface, Sequelize) => {

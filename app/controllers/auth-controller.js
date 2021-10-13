@@ -4,6 +4,7 @@ const UserService = require('../services/user-service');
 const HttpStatus = require('../errors/http-status');
 const APIError = require('../errors/api-error');
 const { validationResult } = require('express-validator');
+const {userLogger} = require('../../config/logger');
 
 class AuthController {
     async register(req, res) {
@@ -14,6 +15,7 @@ class AuthController {
         const createdUser = await authService.register({name, email, password});
 
         res.status(HttpStatus.CREATED).json(createdUser);
+        AuthController.logActivity(createdUser, 'registered on the platform');
     }
 
     async login(req, res) {
@@ -29,6 +31,7 @@ class AuthController {
                 token,
                 generateTime: new Date()
             });
+            userLogger.info(`User <${email}> logged in`);
         } else {
             throw new APIError();
         }
@@ -51,6 +54,7 @@ class AuthController {
             user
         }
         res.status(HttpStatus.OK).json(response);
+        AuthController.logActivity(user, 'confirmed your account with access code');
     }
 
     async forgotPassword(req, res) {
@@ -64,6 +68,7 @@ class AuthController {
             message: `Temporary password has been sent to '${userEmail}'`
         }
         res.status(HttpStatus.OK).json(response);
+        userLogger.info(`User <${userEmail}> request new password`);
     }
 
     async changePassword(req, res) {
@@ -83,12 +88,18 @@ class AuthController {
             message: 'Password has been changed!'
         }
         res.status(HttpStatus.OK).json(response); 
+        AuthController.logActivity(loggedUser, 'changed your password');
     }
 
     static validate(req, res) {
         const errors = validationResult(req);
         if (!errors.isEmpty()) 
           return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({errors: errors.array()});
+    }
+
+    static logActivity(user, action) {
+        const logMessage = `User #${user.id} "${user.name}"<${user.email}> ${action}.`;
+        userLogger.info(logMessage);
     }
 }
 

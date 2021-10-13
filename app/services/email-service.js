@@ -27,12 +27,12 @@ class EmailService {
     }
 
     async sendMail(emailData, closeComm = true) {
-     const mailOptions = this.buildMailOptions(emailData);
+      const mailOptions = this.buildMailOptions(emailData);
 
-      this.transporter.sendMail(mailOptions, (error, response) => {
+      this.transporter.sendMail(mailOptions, async(error, response) => {
           if(error) throw error;
-          else console.log("Message has been sent.");
           if (closeComm) this.close();
+          return response;
       });
     }
 

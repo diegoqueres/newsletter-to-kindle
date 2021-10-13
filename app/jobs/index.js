@@ -1,11 +1,15 @@
 const {ebookSender} = require('./ebook-sender');
+const {jobLogger} = require('../../config/logger');
 require('dotenv').config();
 
 (async () => {
-  console.log('Starting jobs...');
+  jobLogger.info('Starting scheduled jobs...');
 
-  await ebookSender();
-
-  console.log('Jobs has finished...');
-
+  ebookSender()
+    .then(() => {
+      jobLogger.info('Newsletter job has finished');
+    })
+    .catch((error) => {
+      jobLogger.error('Newsletter job failed while running: ' + error);
+    });
 })();

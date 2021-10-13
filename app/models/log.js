@@ -8,9 +8,13 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   Log.init({
-    description: DataTypes.STRING
+    level: DataTypes.STRING(15),
+    message: DataTypes.STRING(1024),
+    meta: DataTypes.STRING,
+    timestamp: DataTypes.DATE 
   }, {
     sequelize,
+    timestamps: false,
     modelName: 'Log',
   });
   
