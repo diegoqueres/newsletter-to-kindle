@@ -53,6 +53,7 @@ class AuthService {
         await user.save();
 
         this.sendForgotPasswordEmail(user, password);
+        return user;
     }
 
     async sendForgotPasswordEmail(user, password) {
@@ -107,7 +108,7 @@ class AuthService {
         const token = jwt.sign({ userId: user.id }, process.env.API_SECRET, {
             expiresIn: parseInt(process.env.TOKEN_EXPIRATION)
         });
-        return token;
+        return {user, token};
     }
 }
 module.exports = AuthService;

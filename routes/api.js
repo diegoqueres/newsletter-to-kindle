@@ -2,13 +2,12 @@ const express = require('express');
 const { check, query, param, body } = require('express-validator');
 const routes = express.Router();
 const Jwt = require('../app/libs/jwt');
-const {logApiActivity} = require('../config/logger');
 const nameMin = 5, nameMax = 255;
 const passwordMin = 8, passwordMax = 128;
 
 
 // Middlewares
-const middlewares = [ Jwt.verify, logApiActivity ];
+const middlewares = [ Jwt.verify ];
 
 
 // Authentication

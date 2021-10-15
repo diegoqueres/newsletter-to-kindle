@@ -4,10 +4,9 @@ const UserService = require('../services/user-service');
 const HttpStatus = require('../errors/http-status');
 const APIError = require('../errors/api-error');
 const { validationResult } = require('express-validator');
-const {userLogger} = require('../../config/logger');
 
 class AuthController {
-    async register(req, res) {
+    async register(req, res, next) {
         AuthController.validate(req, res);
         const authService = new AuthService();
 
@@ -15,15 +14,15 @@ class AuthController {
         const createdUser = await authService.register({name, email, password});
 
         res.status(HttpStatus.CREATED).json(createdUser);
-        AuthController.logActivity(createdUser, 'registered on the platform');
+        next();
     }
 
-    async login(req, res) {
+    async login(req, res, next) {
         AuthController.validate(req, res);
         const authService = new AuthService();
 
         const {email, password} = req.body;
-        const token = await authService.signIn({email, password});
+        const {user, token} = await authService.signIn({email, password});
 
         if (token) {
             res.status(HttpStatus.OK).json({
@@ -31,13 +30,13 @@ class AuthController {
                 token,
                 generateTime: new Date()
             });
-            userLogger.info(`User <${email}> logged in`);
         } else {
             throw new APIError();
         }
+        next();
     }
 
-    async confirmAccount(req, res) {
+    async confirmAccount(req, res, next) {
         AuthController.validate(req, res);
         const authService = new AuthService();
         const userService = new UserService();
@@ -53,25 +52,27 @@ class AuthController {
             message: 'Account has been confirmed successfully',
             user
         }
+
         res.status(HttpStatus.OK).json(response);
-        AuthController.logActivity(user, 'confirmed your account with access code');
+        next();
     }
 
-    async forgotPassword(req, res) {
+    async forgotPassword(req, res, next) {
         AuthController.validate(req, res);
         const authService = new AuthService();
 
         const userEmail = req.body.email;
-        await authService.forgotPassword(userEmail);
+        const user = await authService.forgotPassword(userEmail);
 
         const response = {
             message: `Temporary password has been sent to '${userEmail}'`
         }
+
         res.status(HttpStatus.OK).json(response);
-        userLogger.info(`User <${userEmail}> request new password`);
+        next();
     }
 
-    async changePassword(req, res) {
+    async changePassword(req, res, next) {
         AuthController.validate(req, res);
         const authService = new AuthService();
         const userService = new UserService();
@@ -87,19 +88,15 @@ class AuthController {
         const response = {
             message: 'Password has been changed!'
         }
+
         res.status(HttpStatus.OK).json(response); 
-        AuthController.logActivity(loggedUser, 'changed your password');
+        next();
     }
 
     static validate(req, res) {
         const errors = validationResult(req);
         if (!errors.isEmpty()) 
           return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({errors: errors.array()});
-    }
-
-    static logActivity(user, action) {
-        const logMessage = `User #${user.id} "${user.name}"<${user.email}> ${action}.`;
-        userLogger.info(logMessage);
     }
 }
 

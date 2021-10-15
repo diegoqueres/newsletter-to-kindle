@@ -1,14 +1,13 @@
 const HttpStatus = require('../errors/http-status');
 const APIError = require('../errors/api-error');
 const { validationResult } = require('express-validator');
-const {userLogger} = require('../../config/logger');
 const UserService = require('../services/user-service');
 const Pagination = require('../libs/pagination');
 
 class UserController {
     static userService = new UserService();
 
-    async listAll(req, res) {
+    async listAll(req, res, next) {
         UserController.validate(req, res);
         const {loggedUser, permissionOnlyHimself} = await UserController.getPermissions(req);
 
@@ -19,27 +18,24 @@ class UserController {
         const json = !permissionOnlyHimself
             ? Pagination.getPagingData(await UserController.userService.findAll(filter), filter.page, filter.size)
             : Pagination.getPagingDataForSingle(loggedUser, filter.page, filter.size);
+
         res.json(json);
+        next();
     }
 
-    async findById(req, res) {
+    async findById(req, res, next) {
         UserController.validate(req, res);
         const {loggedUser, permissionOnlyHimself} = await UserController.getPermissions(req, false);
         const requestedId = parseInt(req.params.id);
 
-        if (loggedUser.pendingPassword && loggedUser.id === requestedId) {
-            res.json(loggedUser);
-            next(res);
-        } else {
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You must change your password before proceeding with this operation.');
-        }
-
         if (permissionOnlyHimself) {
-            if (loggedUser.id !== requestedId) {
+            if (loggedUser.id !== requestedId) 
                 throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to access another user\'s data');     
-            }
+            if (loggedUser.pendingPassword)
+                throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You must change your password before proceeding with this operation.');
+
             res.json(loggedUser);
-            next(res);
+            return next(res);
         }
 
         const requestedUser = await UserController.userService.findById(requestedId);
@@ -47,9 +43,10 @@ class UserController {
             throw new APIError('Not found', HttpStatus.NOT_FOUND, 'User not found');
 
         res.json(requestedUser);
+        next();
     }
 
-    async remove(req, res) {
+    async remove(req, res, next) {
         UserController.validate(req, res);
         const {loggedUser, permissionOnlyHimself} = await UserController.getPermissions(req, false);
         const requestedId = parseInt(req.params.id);
@@ -62,7 +59,6 @@ class UserController {
 
             await UserController.userService.remove(loggedUser);
             res.status(HttpStatus.NO_CONTENT).json();
-            UserController.logActivity(loggedUser, 'has been removed', loggedUser);
             next(res);
         }
         if (loggedUser.id === requestedId && loggedUser.pendingPassword) 
@@ -73,11 +69,12 @@ class UserController {
             throw new APIError('Not found', HttpStatus.NOT_FOUND, 'User not found');
 
         await UserController.userService.remove(requestedUser);
+
         res.status(HttpStatus.NO_CONTENT).json();
-        UserController.logActivity(requestedUser, 'has been removed', loggedUser);
+        next();
     }
 
-    async create(req, res) {
+    async create(req, res, next) {
         UserController.validate(req, res);
         const {loggedUser, permissionOnlyHimself} = await UserController.getPermissions(req);
 
@@ -89,10 +86,10 @@ class UserController {
         const createdUser = await UserController.userService.save({name, email, password, superUser});
 
         res.status(HttpStatus.CREATED).json(createdUser);
-        UserController.logActivity(createdUser, 'has been created', loggedUser);
+        next();
     }
 
-    async edit(req, res) {
+    async edit(req, res, next) {
         UserController.validate(req, res);
         const {loggedUser, permissionOnlyHimself, permissionSuper} = await UserController.getPermissions(req);
         const requestedId = parseInt(req.params.id);
@@ -104,17 +101,22 @@ class UserController {
             const {name, email, password} = req.body;
             const editedUser = await UserController.userService.edit(loggedUser, {name, email, password});
             res.status(HttpStatus.OK).json(editedUser);
-            UserController.logActivity(editedUser, 'has been edited', loggedUser);
-            next(res);
+            return next(res);
         }  
 
-        const userDto = {name, email, password, pendingConfirm} = req.body;
+        const userDto = {
+            name: req.body.name, 
+            email: req.body.email, 
+            password: req.body.password, 
+            pendingConfirm: req.body.pendingConfirm
+        };
         const editedUser = await UserController.userService.editById(requestedId, userDto);
+
         res.status(HttpStatus.OK).json(editedUser);
-        UserController.logActivity(editedUser, 'has been edited', loggedUser);
+        next();
     }
 
-    async promote(req, res) {
+    async promote(req, res, next) {
         UserController.validate(req, res);
         const {loggedUser, permissionSuper} = await UserController.getPermissions(req);
 
@@ -130,8 +132,9 @@ class UserController {
             message: 'User was promoted successfully',
             user
         }
+
         res.status(HttpStatus.OK).json(response);
-        UserController.logActivity(user, 'has been promoted', loggedUser);
+        next();
     }
 
     static async getPermissions(req, blockChangePassword = true) {
@@ -155,12 +158,6 @@ class UserController {
         const errors = validationResult(req);
         if (!errors.isEmpty()) 
           return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({errors: errors.array()});
-    }
-
-    static logActivity(user, action, loggedUser) {
-        const logMessage = `User #${user.id} "${user.name}"<${user.email}> ${action}.`;
-        const meta = loggedUser ? {loggedUser: {id: loggedUser.id, name: loggedUser.name}} : null;
-        userLogger.info(logMessage, meta);
     }
 }
 

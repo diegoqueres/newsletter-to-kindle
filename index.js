@@ -2,7 +2,7 @@ require('dotenv').config();
 require('express-async-errors');
 const cors = require('cors');
 const express = require('express');
-const {apiLogger} = require('./config/logger');
+const {apiLogger, createMetadata} = require('./config/logger');
 const APIError = require('./app/errors/api-error');
 const HttpStatus = require('./app/errors/http-status');
 const port = process.env.PORT || 8080;
@@ -21,12 +21,18 @@ const port = process.env.PORT || 8080;
         if (error) {
             if (error instanceof APIError) {
                 res.status(error.httpCode).json(error);
-                apiLogger.warn(`Api error ocurred: status code ${error.httpCode}: ${error.message}`);
-                next(res);
+                let meta = createMetadata(req, res, error, 'warn');
+                apiLogger.warn(`${req.method}:${req.url} ${error.httpCode}: ${error.message}`, meta);
+                return next(res);
             } 
-            apiLogger.error(`Internal server error ocurred: ${error.message}`);
+            let meta = createMetadata(req, res, error, 'error');
             res.status(HttpStatus.INTERNAL_SERVER).json('Internal server error');
+            apiLogger.error(`${req.method}:${req.url} ${error.httpCode}: ${error.message}`, meta);
         }
+    });
+    app.use((req, res, next) => {
+        const meta = createMetadata(req, res);
+        apiLogger.info(`${req.method}:${req.url} ${res.statusCode}`, meta);
     });
 
     app.listen(port);
