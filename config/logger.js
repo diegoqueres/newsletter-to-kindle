@@ -66,16 +66,24 @@ exports.userLogger = createLogger({
     })],
 });
 
+exports.createMetadata = (req, res, err, level = 'info') => {
+    const meta = { 
+        user: {}, 
+        statusCode: res.statusCode
+    };
 
-// Middlewares
-exports.logApiActivity = (req, res, next) => {
-    const meta = { user: {id: req.userId} };
-    exports.apiLogger.info(`${req.method}:${req.url} ${res.statusCode}`, meta);
-    next();
-}
+    if (err) {
+        meta.statusCode = err.httpCode;
+        if (level && level !== 'warn')
+            meta.errorStack = err.stack;
+    }
 
-exports.logApiAuthActivity = (req, res, next) => {
-    const meta = { user: {email: req.body.email} };
-    exports.apiLogger.info(`${req.method}:${req.url} ${res.statusCode}`, meta);
-    next();
+    if (req.userId)
+        meta.user.id = req.userId;
+    else if (req.body.email)
+        meta.user.email = req.body.email;
+    else
+        meta.user = null;
+
+    return meta;
 }

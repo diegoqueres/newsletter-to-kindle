@@ -1,6 +1,6 @@
 const {User} = require('../models');
 const random = require('random');
-const crypto = require('crypto');
+const Encrypter = require('../utils/encrypt-utils');
 const {v4: uuidv4} = require('uuid');
 const APIError = require('../errors/api-error');
 const { Op } = require("sequelize");
@@ -105,9 +105,7 @@ class UserService {
     }
 
     encryptPassword(password, salt = uuidv4()) {
-        const encryptedPassword = crypto
-            .pbkdf2Sync(password, salt, 1000, 64, 'sha512')
-            .toString('hex');
+        const encryptedPassword = Encrypter.encrypt(password, salt);
         return {encryptedPassword, salt};
     }
 }

@@ -4,18 +4,17 @@ const { validationResult } = require('express-validator');
 const UserService = require('../services/user-service');
 const NewsletterService = require('../services/newsletter-service');
 const Pagination = require('../libs/pagination');
-const {userLogger} = require('../../config/logger');
 
 class NewsletterController {
     static userService = new UserService();
     static newsletterService = new NewsletterService();
 
-    async listAllFromLoggedUser(req, res) {
+    async listAllFromLoggedUser(req, res, next) {
         req.query.loggedUser = true;
-        return listAll(req, res);      
+        return listAll(req, res, next);      
     }
 
-    async listAll(req, res) {
+    async listAll(req, res, next) {
         NewsletterController.validate(req, res);
         const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
 
@@ -28,10 +27,12 @@ class NewsletterController {
         const json = Pagination.getPagingData(
             await NewsletterController.newsletterService.findAll(filter), filter.page, filter.size
         );
-        return res.json(json);
+
+        res.json(json);
+        next();
     }
 
-    async findById(req, res) {
+    async findById(req, res, next) {
         NewsletterController.validate(req, res);
         const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
         const requestedId = parseInt(req.params.id);
@@ -44,9 +45,10 @@ class NewsletterController {
             throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You cannot access newsletter from another user');
 
         res.json(requestedNewsletter);
+        next();
     }
 
-    async create(req, res) {
+    async create(req, res, next) {
         NewsletterController.validate(req, res);
         const newsletterDto = req.body;
 
@@ -55,11 +57,12 @@ class NewsletterController {
             throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to create newsletters from another users');     
 
         const createdNewsletter = await NewsletterController.newsletterService.save(newsletterDto);
+
         res.status(HttpStatus.CREATED).json(createdNewsletter);
-        NewsletterController.logActivity(createdNewsletter, 'was created', loggedUser);
+        next();
     }
 
-    async edit(req, res) {
+    async edit(req, res, next) {
         NewsletterController.validate(req, res);
         const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
         const requestedId = parseInt(req.params.id);
@@ -76,11 +79,12 @@ class NewsletterController {
             throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to transfer newsletters to another users');     
 
         const editedNewsletter = await NewsletterController.newsletterService.edit(requestedNewsletter, newsletterDto);
+
         res.status(HttpStatus.OK).json(editedNewsletter);
-        NewsletterController.logActivity(editedNewsletter, 'was edited', loggedUser);
+        next();
     }
 
-    async activate(req, res) {
+    async activate(req, res, next) {
         NewsletterController.validate(req, res);
         const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
         const requestedId = parseInt(req.params.id);
@@ -98,11 +102,11 @@ class NewsletterController {
                     message: 'Newsletter was activated successfully',
                     requestedNewsletter
                 });
-                NewsletterController.logActivity(requestedNewsletter, 'was activated', loggedUser);
+                next();
             });
     }
 
-    async deactivate(req, res) {
+    async deactivate(req, res, next) {
         NewsletterController.validate(req, res);
         const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
         const requestedId = parseInt(req.params.id);
@@ -120,11 +124,11 @@ class NewsletterController {
                     message: 'Newsletter was deactivated successfully',
                     requestedNewsletter
                 });
-                NewsletterController.logActivity(requestedNewsletter, 'was deactivated', loggedUser);
+                next();
             });     
     }
 
-    async remove(req, res) {
+    async remove(req, res, next) {
         NewsletterController.validate(req, res);
         const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
         const requestedId = parseInt(req.params.id);
@@ -139,7 +143,7 @@ class NewsletterController {
         NewsletterController.newsletterService.remove(requestedNewsletter)
             .then(() => {
                 res.status(HttpStatus.NO_CONTENT).json();
-                NewsletterController.logActivity(requestedNewsletter, 'was removed', loggedUser);
+                next();
             });            
     }
 
@@ -164,12 +168,6 @@ class NewsletterController {
         const errors = validationResult(req);
         if (!errors.isEmpty()) 
           return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({errors: errors.array()});
-    }
-
-    static logActivity(entity, action, loggedUser) {
-        const logMessage = `${entity.constructor.name} #${entity.id} "${entity.name}" ${action}.`;
-        const meta = loggedUser ? {loggedUser: {id: loggedUser.id, name: loggedUser.name}} : null;
-        userLogger.info(logMessage, meta);
     }
 }
 
