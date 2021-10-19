@@ -4,7 +4,8 @@ const hbs = require('nodemailer-express-handlebars');
 const path = require('path');
 
 class EmailService {
-    constructor() {
+    constructor(locale = process.env.APPLICATION_LOCALE) {
+        this.locale = locale;
         this.transporter = nodemailer.createTransport({
           host: process.env.EMAIL_SMTP_SERVER,
           port: Number(process.env.EMAIL_SMTP_PORT),
@@ -15,7 +16,7 @@ class EmailService {
           },
         });
 
-        const templatesPath = `./templates/${process.env.APPLICATION_LOCALE}/`;
+        const templatesPath = `./templates/${this.locale}/`;
         const handlebarOptions = {
           viewEngine: {
               partialsDir: path.resolve(templatesPath),
@@ -43,7 +44,7 @@ class EmailService {
        if (attachments)
          attachmentsFiles = attachments.map((item) => { return { path: item } });
 
-      const fromMail = `"${process.env.SERVICE_NAME} Service" <${process.env.EMAIL_SMTP_EMAIL}>`;
+      const fromMail = `"${process.env.SERVICE_NAME}" <${process.env.EMAIL_SMTP_EMAIL}>`;
 
       const mailOptions = {
         encoding: encoding,

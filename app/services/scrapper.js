@@ -142,8 +142,8 @@ class Scrapper {
 
         let locale = this.newsletter.locale;
         let lang = locale;
-        let labelAuthor = this.i18n.__('Author');
-        let labelSource = this.i18n.__('Source');
+        let labelAuthor = this.i18n.__('label.post.author');
+        let labelSource = this.i18n.__('label.post.source');
 
         if (this.newsletter.mustBeTranslated()) {
             post = await this.translatePost(post);
@@ -152,8 +152,8 @@ class Scrapper {
                 locale = this.newsletter.translationTarget;
                 lang = locale;
                 let i18n = this.getNewI18N(locale);
-                labelAuthor = i18n.__('Author');
-                labelSource = i18n.__('Source');                
+                labelAuthor = i18n.__('label.post.author');
+                labelSource = i18n.__('label.post.source');                
             }
         }
 

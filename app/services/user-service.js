@@ -12,7 +12,7 @@ class UserService {
         let {name, email, password, pendingConfirm, superUser} = userDto;
         const existantUser = await this.findByEmail(email);
         if (existantUser) {
-            throw new APIError('Bad Request',HttpStatus.BAD_REQUEST,'User already exists');
+            throw new APIError('Bad Request', HttpStatus.BAD_REQUEST, 'user.already-exists');
         }
 
         const encryptResult = this.encryptPassword(password);
@@ -35,7 +35,7 @@ class UserService {
     async editById(userId, userDto) {
         const user = await this.findById(userId);
         if (user == null) {
-            throw new APIError('Not found',HttpStatus.NOT_FOUND,'User does not exists');
+            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'user.doesnt-exists');
         }
 
         return this.edit(user, userDto);
@@ -44,7 +44,7 @@ class UserService {
     async promote(userId) {
         const user = await this.findById(userId);
         if (user == null) 
-            throw new APIError('Not found',HttpStatus.NOT_FOUND,'User does not exists');
+            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'user.doesnt-exists');
 
         user.super = true;
         user.save();
