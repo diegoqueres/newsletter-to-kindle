@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { createLogger, transports , format } = require('winston');
 const databaseData = require('./database');
+const {i18n} = require('./i18n.config');
 var {Loggly} = require('winston-loggly-bulk');
 const { SqlTransport } = require('winston-sql-transport');
 
@@ -74,8 +75,13 @@ exports.createMetadata = (req, res, err, level = 'info') => {
 
     if (err) {
         meta.statusCode = err.httpCode;
+
         if (level && level !== 'warn')
             meta.errorStack = err.stack;
+
+        meta.errorMessage = i18n.__(err.message)
+            ? i18n.__(err.message)
+            : err.message;
     }
 
     if (req.userId)

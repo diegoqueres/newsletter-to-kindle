@@ -26,7 +26,7 @@ class AuthController {
 
         if (token) {
             res.status(HttpStatus.OK).json({
-                message: 'User authenticated',
+                message: res.__('auth.user-authenticated'),
                 token,
                 generateTime: new Date()
             });
@@ -44,12 +44,12 @@ class AuthController {
         const loggedUserId = req.userId; 
         const loggedUser = await userService.findById(loggedUserId);
         if (loggedUser == null) 
-            throw new APIError('Unauthorized', HttpStatus.UNAUTHORIZED, 'Logged user cannot be found!');
+            throw new APIError('Unauthorized', HttpStatus.UNAUTHORIZED, 'auth.logged-user-not-found');
 
         const confirmationCode = req.body.confirmationCode;
         const user = await authService.confirmAccount(loggedUser, confirmationCode);    
         const response = {
-            message: 'Account has been confirmed successfully',
+            message: res.__('auth.account-confirmed'),
             user
         }
 
@@ -65,7 +65,7 @@ class AuthController {
         const user = await authService.forgotPassword(userEmail);
 
         const response = {
-            message: `Temporary password has been sent to '${userEmail}'`
+            message: res.__('auth.temporary-password-sent', {userEmail})
         }
 
         res.status(HttpStatus.OK).json(response);
@@ -80,13 +80,13 @@ class AuthController {
         const loggedUserId = req.userId; 
         const loggedUser = await userService.findById(loggedUserId);
         if (loggedUser == null) 
-            throw new APIError('Unauthorized', HttpStatus.UNAUTHORIZED, 'Logged user cannot be found!');
+            throw new APIError('Unauthorized', HttpStatus.UNAUTHORIZED, 'auth.logged-user-not-found');
 
         const password = req.body.newPassword;
         await authService.changePassword(loggedUser, password);
 
         const response = {
-            message: 'Password has been changed!'
+            message: res.__('auth.password-changed')
         }
 
         res.status(HttpStatus.OK).json(response); 

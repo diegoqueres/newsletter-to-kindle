@@ -30,9 +30,9 @@ class UserController {
 
         if (permissionOnlyHimself) {
             if (loggedUser.id !== requestedId) 
-                throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to access another user\'s data');     
+                throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'user.not-have-privileges-to-another-user-data');     
             if (loggedUser.pendingPassword)
-                throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You must change your password before proceeding with this operation.');
+                throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'auth.pendant-change-temporary-password');
 
             res.json(loggedUser);
             return next(res);
@@ -40,7 +40,7 @@ class UserController {
 
         const requestedUser = await UserController.userService.findById(requestedId);
         if (requestedUser == null) 
-            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'User not found');
+            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'user.not-found');
 
         res.json(requestedUser);
         next();
@@ -53,20 +53,20 @@ class UserController {
 
         if (permissionOnlyHimself) {
             if (loggedUser.id !== requestedId) 
-                throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to delete another user');     
+                throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'user.not-have-privileges-to-delete-users');     
             if (loggedUser.pendingPassword)
-                throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You must change your password before proceeding with this operation.');
+                throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'auth.pendant-change-temporary-password');
 
             await UserController.userService.remove(loggedUser);
             res.status(HttpStatus.NO_CONTENT).json();
             next(res);
         }
         if (loggedUser.id === requestedId && loggedUser.pendingPassword) 
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You must change your password before proceeding with this operation.');
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'auth.pendant-change-temporary-password');
 
         const requestedUser = await UserController.userService.findById(requestedId);
         if (requestedUser == null) 
-            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'User not found');
+            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'user.not-found');
 
         await UserController.userService.remove(requestedUser);
 
@@ -79,7 +79,7 @@ class UserController {
         const {loggedUser, permissionOnlyHimself} = await UserController.getPermissions(req);
 
         if (permissionOnlyHimself) 
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to create users');     
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'user.not-have-privileges-to-create-users');     
 
         const {name, email, password} = req.body;
         const superUser = req.body.super;
@@ -96,7 +96,7 @@ class UserController {
 
         if (permissionOnlyHimself) {
             if (loggedUser.id !== requestedId) {
-                throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to edit another user');     
+                throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'user.not-have-privileges-to-edit-users');     
             }
             const {name, email, password} = req.body;
             const editedUser = await UserController.userService.edit(loggedUser, {name, email, password});
@@ -121,18 +121,18 @@ class UserController {
         const {loggedUser, permissionSuper} = await UserController.getPermissions(req);
 
         if (!permissionSuper)
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to promote another user');  
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'user.not-have-privileges-to-promote-users');  
         
         const requestedId = parseInt(req.params.id);
         if (loggedUser.id === requestedId)
-            throw new APIError('Bad Request', HttpStatus.BAD_REQUEST, 'You cannot promote yourself'); 
+            throw new APIError('Bad Request', HttpStatus.BAD_REQUEST, 'user.not-have-privileges-to-promote-yourself'); 
             
         const user = await UserController.userService.promote(requestedId);
+
         const response = {
-            message: 'User was promoted successfully',
+            message: res.__('user.promotion-successfully'),
             user
         }
-
         res.status(HttpStatus.OK).json(response);
         next();
     }
@@ -141,10 +141,10 @@ class UserController {
         const loggedUserId = req.userId; 
         const loggedUser = await UserController.userService.findById(loggedUserId);
         if (loggedUser == null) 
-            throw new APIError('Unauthorized', HttpStatus.UNAUTHORIZED, 'Logged user cannot be found!');
+            throw new APIError('Unauthorized', HttpStatus.UNAUTHORIZED, 'auth.logged-user-not-found');
 
         if (blockChangePassword && loggedUser.pendingPassword)
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You must change your password before proceeding with this operation.');
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'auth.pendant-change-temporary-password');
 
         const permissions = {
             loggedUser,

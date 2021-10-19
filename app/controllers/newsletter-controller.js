@@ -39,10 +39,10 @@ class NewsletterController {
 
         const requestedNewsletter = await NewsletterController.newsletterService.findById(requestedId);
         if (requestedNewsletter == null) 
-            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'Newsletter not found');
+            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'newsletter.not-found');
 
         if (permissionOnlyHimself && requestedNewsletter.userId !== loggedUser.id)
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You cannot access newsletter from another user');
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'newsletter.not-have-privileges-to-another-user-data');
 
         res.json(requestedNewsletter);
         next();
@@ -54,7 +54,7 @@ class NewsletterController {
 
         const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
         if (permissionOnlyHimself && loggedUser.id !== newsletterDto.userId) 
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to create newsletters from another users');     
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'newsletter.not-allowed-create-to-another-users');     
 
         const createdNewsletter = await NewsletterController.newsletterService.save(newsletterDto);
 
@@ -70,13 +70,13 @@ class NewsletterController {
         
         const requestedNewsletter = await NewsletterController.newsletterService.findById(requestedId);
         if (requestedNewsletter == null) 
-            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'Newsletter not found');
+            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'newsletter.not-found');
         
         if (permissionOnlyHimself && loggedUser.id !== requestedNewsletter.userId) 
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to edit newsletters of another users');         
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'newsletter.not-allowed-edit-to-another-users');         
         
         if (permissionOnlyHimself && requestedNewsletter.userId !== newsletterDto.userId) 
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to transfer newsletters to another users');     
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'newsletter.not-allowed-transfer-to-another-users');     
 
         const editedNewsletter = await NewsletterController.newsletterService.edit(requestedNewsletter, newsletterDto);
 
@@ -91,15 +91,15 @@ class NewsletterController {
         
         const requestedNewsletter = await NewsletterController.newsletterService.findById(requestedId);
         if (requestedNewsletter == null) 
-            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'Newsletter not found');
+            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'newsletter.not-found');
         
         if (permissionOnlyHimself && loggedUser.id !== requestedNewsletter.userId) 
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to edit newsletters of another users');              
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'newsletter.not-allowed-edit-to-another-users');              
 
         NewsletterController.newsletterService.activate(requestedNewsletter)
             .then(() => {
                 res.status(HttpStatus.OK).json({
-                    message: 'Newsletter was activated successfully',
+                    message: res.__('newsletter.activate-successfully'),
                     requestedNewsletter
                 });
                 next();
@@ -113,15 +113,15 @@ class NewsletterController {
         
         const requestedNewsletter = await NewsletterController.newsletterService.findById(requestedId);
         if (requestedNewsletter == null) 
-            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'Newsletter not found');
+            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'newsletter.not-found');
         
         if (permissionOnlyHimself && loggedUser.id !== requestedNewsletter.userId) 
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to edit newsletters of another users');              
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'newsletter.not-allowed-edit-to-another-users');              
 
         NewsletterController.newsletterService.deactivate(requestedNewsletter)
             .then(() => {
                 res.status(HttpStatus.OK).json({
-                    message: 'Newsletter was deactivated successfully',
+                    message: res.__('newsletter.deactivate-successfully'),
                     requestedNewsletter
                 });
                 next();
@@ -135,10 +135,10 @@ class NewsletterController {
         
         const requestedNewsletter = await NewsletterController.newsletterService.findById(requestedId);
         if (requestedNewsletter == null) 
-            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'Newsletter not found');
+            throw new APIError('Not found', HttpStatus.NOT_FOUND, 'newsletter.not-found');
         
         if (permissionOnlyHimself && loggedUser.id !== requestedNewsletter.userId) 
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You don\'t have privileges to edit newsletters of another users');              
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'newsletter.not-allowed-edit-to-another-users');              
 
         NewsletterController.newsletterService.remove(requestedNewsletter)
             .then(() => {
@@ -151,10 +151,10 @@ class NewsletterController {
         const loggedUserId = req.userId; 
         const loggedUser = await NewsletterController.userService.findById(loggedUserId);
         if (loggedUser == null) 
-            throw new APIError('Unauthorized', HttpStatus.UNAUTHORIZED, 'Logged user cannot be found!');
+            throw new APIError('Unauthorized', HttpStatus.UNAUTHORIZED, 'auth.logged-user-not-found');
 
         if (blockedByChangePassword && loggedUser.pendingPassword)
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'You must change your password before proceeding with this operation.');
+            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'auth.pendant-change-temporary-password');
 
         const permissions = {
             loggedUser,
