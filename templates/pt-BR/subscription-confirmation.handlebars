@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{{title}}</title>
+  <meta charset="{{newsletter.encoding}}">
+  <meta http-equiv="content-language" content="{{newsletter.lang}}">
+  <meta name="description" content="{{description}}">
+  <meta name="author" content="{{newsletter.author}}">
+</head>
+
+<body>
+  <h3>{{title}}</h3>
+  <p>Você está recebendo esse post porquê assinou a newsletter {{newsletter.name}} de {{newsletter.author}}.</p>
+  <p>Para confirmar a assinatura e passar a receber essa newsletter regularmente em seu Kindle, por favor acesse o
+    link abaixo:</p>
+  <p style="text-align: center;"><strong><a href="{{confirmation-link}}">{{confirmation-link}}</a></strong>
+  </p>
+  <p>Obrigado,<br>
+  {{newsletter.author}}</p>
+</body>
+
+</html>

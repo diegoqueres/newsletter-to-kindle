@@ -137,4 +137,51 @@ routes.delete('/newsletters/:id', [
 ], newsletterController.remove);
 //----------------------------------------------------------------
 
+// Subscribers
+const SubscriberController = require('../app/controllers/subscriber-controller');
+const subscriberController = new SubscriberController();
+
+routes.get('/subscribers', [
+    middlewares,
+    query('email', 'email must be a valid email').if(query('email').exists()).isEmail(),
+    query('kindleEmail', 'kindle email must be a valid email').if(query('kindleEmail').exists()).isEmail(),
+    query('kindleEmail', 'kindle email must end like \'@kindle.com\'').if(query('kindleEmail').exists()).matches(/.+@kindle.com/gmi),
+    query('page', 'page must be a number greather than 0').if(query('page').exists()).isInt({ min:1 }),
+    query('size', 'size must be a number greather than 0').if(query('size').exists()).isInt({ min:1 })
+], subscriberController.listAll);
+
+routes.get('/subscribers/:id', [
+    middlewares,
+    param('id', 'id must be a number').isInt()
+], subscriberController.findById);
+
+routes.delete('/subscribers/:id', [
+    middlewares,
+    param('id', 'id must be a number').isInt()
+], subscriberController.remove);
+//----------------------------------------------------------------
+
+// Subscriptions
+const SubscriptionController = require('../app/controllers/subscription-controller');
+const subscriptionController = new SubscriptionController();
+
+routes.get('/subscriptions', [
+    middlewares,
+    query('subscriberId', 'subscriberId must be number').if(query('subscriberId').exists()).isInt(),
+    query('newsletterId', 'newsletterId must be number').if(query('newsletterId').exists()).isInt(),
+    query('page', 'page must be a number greather than 0').if(query('page').exists()).isInt({ min:1 }),
+    query('size', 'size must be a number greather than 0').if(query('size').exists()).isInt({ min:1 })
+], subscriptionController.listAll);
+
+routes.get('/subscriptions/:id', [
+    middlewares,
+    param('id', 'id must be a number').isInt()
+], subscriptionController.findById);
+
+routes.delete('/subscriptions/:id', [
+    middlewares,
+    param('id', 'id must be a number').isInt()
+], subscriptionController.remove);
+//----------------------------------------------------------------
+
 module.exports = routes;

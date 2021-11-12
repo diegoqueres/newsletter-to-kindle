@@ -6,7 +6,7 @@ const {apiLogger, createMetadata} = require('./config/logger');
 const APIError = require('./app/errors/api-error');
 const HttpStatus = require('./app/errors/http-status');
 const {i18n} = require('./config/i18n.config');
-const port = process.env.PORT || 8080;
+const {port, baseUrl} = require('./config/system');
 
 (async () => {
     const app = express();
@@ -21,14 +21,23 @@ const port = process.env.PORT || 8080;
     // middlewares
     app.use((error, req, res, next) => {
         if (error) {
+            console.error(error);
             if (error instanceof APIError) {
                 if (res.__(error.description))
                     error.description = res.__(error.description);
-                res.status(error.httpCode).json(error);
+
+                if (res.html && res.html === true) {
+                    const html = `<p><i><b>${res.__('error.error')} ${error.httpCode}</b>: ${error.description}</i></p>`;
+                    res.status(error.httpCode).send(html);
+                } else {
+                    res.status(error.httpCode).json(error);
+                }
+
                 let meta = createMetadata(req, res, error, 'warn');
                 apiLogger.warn(`${req.method}:${req.url} ${error.httpCode}`, meta);
                 return next(res);
             } 
+
             const jsonResponse = {
                 name: 'Internal server error',
                 description: res.__('error.internal-error'),
@@ -44,6 +53,6 @@ const port = process.env.PORT || 8080;
         apiLogger.info(`${req.method}:${req.url} ${res.statusCode}`, meta);
     });
 
-    app.listen(port);
-    apiLogger.info(`Server started and running on http://${process.env.APPLICATION_HOST}:${port}`);
+    app.listen(port());
+    apiLogger.info(`Server started and running on ${baseUrl()}`);
 })();

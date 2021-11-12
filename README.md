@@ -24,32 +24,7 @@ Clone the project and them run to install Node packages.
 npm install
 ```
 
-After that, you must create an .env file _(like the template bellow)_, entering the appropriate values for your environment.
-```bash
-#aplication config
-DEBUG=<eg:true/false>
-
-#service config
-SERVICE_NAME=<Service name of application, eg: Newsletter to Kindle>
-SERVICE_EMAIL_SUBJECT=
-
-#kindle config
-KINDLE_EMAIL=<eg:user@kindle.com>
-
-#database config
-DB_HOST=<eg:localhost>
-DB_DATABASE=
-DB_USERNAME=
-DB_PASSWORD=
-DB_PORT=
-
-#smtp config
-EMAIL_SMTP_SERVER=<eg:smtp.server.com>
-EMAIL_SMTP_USER=
-EMAIL_SMTP_EMAIL=
-EMAIL_SMTP_PASSWORD=
-EMAIL_SMTP_PORT=
-```
+After that, you must create an .env file _(like the template bellow)_, entering the appropriate values for your environment. See _.env.example_ to see all environment variables must be filled.
 
 Now you must run database migrations.
 ```bash

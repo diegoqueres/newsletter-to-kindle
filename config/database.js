@@ -6,7 +6,8 @@ const databaseData =  {
     database: process.env.DB_DATABASE,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialect: 'mysql'
+    dialect: 'mysql',
+    logging: (process.env.DB_LOGGING === 'true')
 }
 
 module.exports = databaseData;
