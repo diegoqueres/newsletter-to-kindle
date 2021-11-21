@@ -29,9 +29,7 @@ class TempWriter {
             buffer = iconv.encode(content, encoding);
         }
         
-        fs.writeFile(filePath, buffer, function (err) {
-            if (err) throw err;
-        });
+        fs.writeFileSync(filePath, buffer);
         
         return filePath;        
     }    

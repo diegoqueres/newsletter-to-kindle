@@ -1,18 +1,24 @@
 {
 	"label.post.author": "Autor",
 	"label.post.source": "Fonte",
+
 	"auth.logged-user-not-found": "Usuário logado não foi encontrado",
 	"auth.user-authenticated": "Usuário autenticado",
 	"auth.user-not-found": "Usuário não encontrado",
 	"auth.wrong-user-password": "Usuário ou senha não estão corretos",
 	"auth.account-confirmed": "Conta confirmada com sucesso!",
 	"auth.temporary-password-sent": "Senha temporária foi enviada para {{{userEmail}}}",
-	"auth.pendant-change-temporary-password": "You must change your password before proceeding with this operation",
+	"auth.pendant-change-temporary-password": "Você deve prosseguir com a troca da sua senha temporária antes de proceder com essa operação",
+	"auth.pendant-confirm-account": "Você deve confirmar sua conta antes de proceder com essa operação",
 	"auth.password-changed": "A senha foi alterada com sucesso!",
 	"auth.wrong-confirmation-code": "Código de confirmação incorreto",
+
 	"error.internal-error": "Erro interno do servidor",
+	"error.error": "Erro",
+
 	"email.subject.forgot-password": "Sua nova senha temporária para '{{{serviceName}}}'",
 	"email.subject.confirm-account": "Confirme sua conta no serviço '{{{serviceName}}}'",
+
 	"user.not-found": "Usuário não encontrado",
 	"user.not-have-privileges-to-another-user-data": "Você não têm privilégios para acessar dados de outro usuário",
 	"user.not-have-privileges-to-delete-users": "Você não têm privilégios para apagar dados de outro usuário",
@@ -23,11 +29,28 @@
 	"user.promotion-successfully": "Usuário foi promovido com sucesso!",
 	"user.already-exists": "Usuário já existe",
 	"user.doesnt-exists": "Usuário não existe",
+
 	"newsletter.not-found": "A newsletter não foi encontrada",
 	"newsletter.not-have-privileges-to-another-user-data": "Você não pode acessar newsletters de outro usuário",
 	"newsletter.not-allowed-create-to-another-users": "Você não têm privilégios para criar newsletters para outros usuários",
 	"newsletter.not-allowed-edit-to-another-users": "Você não têm privilégios para editar newsletters de outros usuários",
 	"newsletter.not-allowed-transfer-to-another-users": "Você não têm privilégios para transferir newsletters para outros usuários",
 	"newsletter.activate-successfully": "A newsletter foi ativada com sucesso!",
-	"newsletter.deactivate-successfully": "A newsletter foi desativada com sucesso!"
+	"newsletter.deactivate-successfully": "A newsletter foi desativada com sucesso!",
+	"newsletter.confirmation-email.subject": "Confirme sua inscrição Kindle na newsletter {{{newsletterName}}}",
+
+	"subscriber.not-found": "Assinante não encontrado",
+	"subscriber.create.mandatory-fields": "Você precisa fornecer o e-mail/e-mail kindle para buscar/cadastrar assinantes",
+
+	"subscription.must-accept-terms": "O assinante deve aceitar os termos do serviço para assinar",
+	"subscription.created-successfully": "A assinatura foi realizada com sucesso!",
+	"subscription.already-exists": "A assinatura já existe",
+	"subscription.token.mismatch": "O token está incorreto",
+	"subscription.not-found": "Inscrição não localizada",
+	"subscription.confirmed": "Sua inscrição Kindle para {{{newsletterName}}} foi confirmada com sucesso!",
+	"subscription.unsubscribe-confirmation": "Sua inscrição Kindle para {{{newsletterName}}} foi cancelada!",
+	"subscription.already-confirmed": "Sua inscrição já fora confirmada anteriormente!",
+
+	"post.label.unsubscription-link": "Se deseja não receber mais estas mensagens no seu Kindle, por favor acesse",
+	"post.default-content": "O conteúdo deste post está no arquivo anexo."
 }

@@ -199,7 +199,7 @@ class Scrapper {
         newHtmlContent += `<title>${post.title}</title>`;
         newHtmlContent += `<meta charset="${this.newsletter.getEncoding()}">`;
         newHtmlContent += `<meta http-equiv="content-language" content="${lang}">`;
-        newHtmlContent += `<meta name="description" content="${post.description}">`;
+        // old newHtmlContent += `<meta name="description" content="${post.description}">`;
         newHtmlContent += `<meta name="author" content="${post.author}">`;
         newHtmlContent += `</head>\n<body>\n\n`;
         newHtmlContent += `<article>`;
@@ -210,10 +210,11 @@ class Scrapper {
         newHtmlContent += `<div class="byline"><a href="#" rel="author">${post.author}</a> | ${post.date.toLocaleDateString(locale, {dateStyle:"long"})}</div>\n`;
         newHtmlContent += `</header>`;
         newHtmlContent += `${post.htmlContent}\n<hr>\n`;
-        newHtmlContent += `<p><em><strong>${labelAuthor}: </strong>${post.author}</em><br />`;
-        newHtmlContent += `<em><strong>${labelSource}: </strong>${post.link}</em></p>`;
         newHtmlContent += `</article>`;
-        newHtmlContent += `</body>\n</html>`;
+        newHtmlContent += `<footer>`
+        newHtmlContent += `<p><em><strong>${labelAuthor}: </strong>${post.author}</em><br />`;
+        newHtmlContent += `<em><strong>${labelSource}: </strong>${post.link}</em><br />`;
+        // old newHtmlContent += `</p></footer></body>\n</html>`;
 
         return newHtmlContent;
     }

@@ -51,7 +51,7 @@ exports.jobLogger = createLogger({
     ]
 });
 
-exports.userLogger = createLogger({
+exports.subscriptionLogger = createLogger({
     format: format.json(),
     transports: [new SqlTransport({
         name: 'SqlTransport',

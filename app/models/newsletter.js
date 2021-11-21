@@ -29,6 +29,14 @@ module.exports = (sequelize, DataTypes) => {
       }
     }
 
+    getLanguage() {
+      return this.getCurrentLocale().substring(0,2);
+    }
+
+    getCurrentLocale() {
+      return this.translationTarget || this.locale;
+    }
+
     mustBeTranslated() {
       return ValidationUtils.validNonEmptyString(this.translationTarget); 
     }
@@ -41,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
       Newsletter.belongsTo(models['User'], { foreignKey: 'userId' });
 
       Newsletter.belongsToMany(models['Subscriber'], { 
-        through: 'Subscription',
+        through: 'Subscriptions',
         as: 'subscribers',
         foreignKey: "newsletterId",  
       });
