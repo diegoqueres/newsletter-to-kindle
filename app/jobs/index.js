@@ -14,7 +14,7 @@ const {jobLogger} = require('../../config/logger');
       jobLogger.error('Newsletter job failed while running: ' + error);
     }); 
     
-  Promise.all([job1])
+  Promise.allSettled([job1])
     .then((result) => {
       jobLogger.info('Scheduled jobs has finished');
       process.exit(1);
