@@ -24,7 +24,7 @@ Clone the project and them run to install Node packages.
 npm install
 ```
 
-After that, you must create an .env file _(like the template bellow)_, entering the appropriate values for your environment. See _.env.example_ to see all environment variables must be filled.
+After that, you must create an .env file, entering the appropriate values for your environment. See _.env.example_ to see all environment variables must be filled and helping you to create your own .env file.
 
 Now you must run database migrations.
 ```bash
@@ -80,19 +80,18 @@ You can run the web server with command: `npm start` _(although the project has 
 🚀 _Under construction_ 🚧
 
 ## Version
-_0.5.0: Experimental version._
+_0.9.0: Experimental version._
 
 ## Features
-- [x] Read newsletter feed content and post articles to a single Kindle user;
+- [x] Read newsletter feed content and post articles to kindle delivery e-mail;
 - [x] Registration of multiple feeds;
 - [x] Article translations (full or bilingual translation, based on Azure Translator API);
-- [x] Improve and implement all necessary tests;
-- [ ] Log of submitted articles to improve the delivery verification _(today it is very simple)_;
+- [x] Rest API to manage newsletters, users and subscriptions;
+- [x] Log of submitted articles to improve the delivery verification;
 
 
 - _(optional)_ Allow sending article images _(Need better tests of Amazon Send to Kindle. Apparently it fails to deliver a portion of the images)_.
 - _(optional)_ The application currently sends 1 file for each article. It can allow sending a file containing multiple related articles.
--  _(optional)_ This application is currently single user. But it can become a scalable service/support multiple users, for instance.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

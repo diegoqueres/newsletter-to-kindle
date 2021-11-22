@@ -68,8 +68,8 @@ class NewsletterSenderJob {
   }
 
   getDebug() {
-    return ValidationUtils.validNonEmptyString(process.env.DEBUG)
-      ? ConversionUtils.stringToBoolean(process.env.DEBUG)
+    return ValidationUtils.validNonEmptyString(process.env.APPLICATION_DEBUG)
+      ? ConversionUtils.stringToBoolean(process.env.APPLICATION_DEBUG)
       : false;
   }
 
