@@ -80,7 +80,7 @@ You can run the web server with command: `npm start` _(although the project has 
 🚀 _Under construction_ 🚧
 
 ## Version
-_0.9.0: Experimental version._
+_0.9.1: Experimental version._
 
 ## Features
 - [x] Read newsletter feed content and post articles to kindle delivery e-mail;

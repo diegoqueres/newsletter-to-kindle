@@ -1,28 +1,34 @@
 require('dotenv').config();
 const AuthService = require('../services/auth-service');
 const UserService = require('../services/user-service');
+const BaseController = require('./base-controller');
 const HttpStatus = require('../errors/http-status');
 const APIError = require('../errors/api-error');
-const { validationResult } = require('express-validator');
+const es6BindAll = require("es6bindall");
 
-class AuthController {
+class AuthController extends BaseController {
+    constructor() {
+        super();
+        this.authService = new AuthService();
+        this.userService = new UserService();
+        this.bindAll();
+    }
+
     async register(req, res, next) {
-        AuthController.validate(req, res);
-        const authService = new AuthService();
+        super.validate(req, res);
 
         const {name, email, password} = req.body;
-        const createdUser = await authService.register({name, email, password});
+        const createdUser = await this.authService.register({name, email, password});
 
         res.status(HttpStatus.CREATED).json(createdUser);
         next();
     }
 
     async login(req, res, next) {
-        AuthController.validate(req, res);
-        const authService = new AuthService();
+        super.validate(req, res);
 
         const {email, password} = req.body;
-        const {user, token} = await authService.signIn({email, password});
+        const {user, token} = await this.authService.signIn({email, password});
 
         if (token) {
             res.status(HttpStatus.OK).json({
@@ -37,17 +43,15 @@ class AuthController {
     }
 
     async confirmAccount(req, res, next) {
-        AuthController.validate(req, res);
-        const authService = new AuthService();
-        const userService = new UserService();
+        super.validate(req, res);
 
         const loggedUserId = req.userId; 
-        const loggedUser = await userService.findById(loggedUserId);
+        const loggedUser = await this.userService.findById(loggedUserId);
         if (loggedUser == null) 
             throw new APIError('Unauthorized', HttpStatus.UNAUTHORIZED, 'auth.logged-user-not-found');
 
         const confirmationCode = req.body.confirmationCode;
-        const user = await authService.confirmAccount(loggedUser, confirmationCode);    
+        const user = await this.authService.confirmAccount(loggedUser, confirmationCode);    
         const response = {
             message: res.__('auth.account-confirmed'),
             user
@@ -58,11 +62,10 @@ class AuthController {
     }
 
     async forgotPassword(req, res, next) {
-        AuthController.validate(req, res);
-        const authService = new AuthService();
+        super.validate(req, res);
 
         const userEmail = req.body.email;
-        const user = await authService.forgotPassword(userEmail);
+        const user = await this.authService.forgotPassword(userEmail);
 
         const response = {
             message: res.__('auth.temporary-password-sent', {userEmail})
@@ -73,17 +76,15 @@ class AuthController {
     }
 
     async changePassword(req, res, next) {
-        AuthController.validate(req, res);
-        const authService = new AuthService();
-        const userService = new UserService();
+        super.validate(req, res);
 
         const loggedUserId = req.userId; 
-        const loggedUser = await userService.findById(loggedUserId);
+        const loggedUser = await this.userService.findById(loggedUserId);
         if (loggedUser == null) 
             throw new APIError('Unauthorized', HttpStatus.UNAUTHORIZED, 'auth.logged-user-not-found');
 
         const password = req.body.newPassword;
-        await authService.changePassword(loggedUser, password);
+        await this.authService.changePassword(loggedUser, password);
 
         const response = {
             message: res.__('auth.password-changed')
@@ -93,11 +94,8 @@ class AuthController {
         next();
     }
 
-    static validate(req, res) {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) 
-          return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({errors: errors.array()});
+    bindAll() {
+        es6BindAll(this, ['register', 'login', 'confirmAccount', 'forgotPassword', 'changePassword']);
     }
 }
-
 module.exports = AuthController;
