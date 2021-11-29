@@ -1,6 +1,6 @@
 {
   "name": "newsletter-to-kindle",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Create and send newsletters to Kindle devices",
   "main": "app.js",
   "scripts": {
@@ -20,6 +20,7 @@
     "express-validator": "^6.12.1",
     "fs": "0.0.1-security",
     "generate-password": "^1.6.1",
+    "helmet": "^4.6.0",
     "i18n": "^0.13.2",
     "iconv-lite": "^0.6.2",
     "jsdom": "^16.4.0",

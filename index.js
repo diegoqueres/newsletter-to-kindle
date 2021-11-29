@@ -1,7 +1,8 @@
 require('dotenv').config();
 require('express-async-errors');
-const cors = require('cors');
 const express = require('express');
+const helmet = require("helmet");
+const cors = require('cors');
 const {apiLogger, createMetadata} = require('./config/logger');
 const APIError = require('./app/errors/api-error');
 const HttpStatus = require('./app/errors/http-status');
@@ -13,6 +14,7 @@ const {port, baseUrl} = require('./config/system');
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
     app.use(cors());
+    app.use(helmet());
     app.use(i18n.init);
 
     app.use('/public', require("./routes/public"));
