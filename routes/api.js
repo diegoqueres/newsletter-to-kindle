@@ -75,16 +75,16 @@ routes.get('/newsletters', [
     query('size', 'size must be a number greather than 0').if(query('size').exists()).isInt({ min:1 })
 ], newsletterController.listAll);
 
-routes.get('/newsletters/:id', [
-    middlewares,
-    param('id', 'id must be a number').isInt()
-], newsletterController.findById);
-
 routes.get('/newsletters/logged-user', [
     middlewares,
     query('page', 'page must be a number greather than 0').if(query('page').exists()).isInt({ min:1 }),
     query('size', 'size must be a number greather than 0').if(query('size').exists()).isInt({ min:1 })
 ], newsletterController.listAllFromLoggedUser);
+
+routes.get('/newsletters/:id', [
+    middlewares,
+    param('id', 'id must be a number').isInt()
+], newsletterController.findById);
 
 routes.post('/newsletters', [
     middlewares,

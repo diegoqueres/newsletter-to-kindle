@@ -1,10 +1,10 @@
 {
   "name": "newsletter-to-kindle",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Create and send newsletters to Kindle devices",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon index.js",
+    "api": "node index.js",
     "dev": "nodemon --inspect index.js",
     "test": "jest",
     "jobs": "node app/jobs/index.js"

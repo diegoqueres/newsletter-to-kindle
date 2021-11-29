@@ -14,7 +14,7 @@ class NewsletterController extends BaseController {
 
     async listAllFromLoggedUser(req, res, next) {
         req.query.loggedUser = true;
-        return listAll(req, res, next);      
+        return this.listAll(req, res, next);      
     }
 
     async listAll(req, res, next) {

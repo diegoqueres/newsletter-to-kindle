@@ -37,7 +37,7 @@ class AuthService {
             context: {
                 "name": user.name, 
                 "confirmation-code": user.confirmCode,
-                "confirmation-link": "https://link.to.confirm.account"
+                "confirmation-link": this.getLoginUrl()
             }
         };
         await this.emailService.sendMail(emailData);
@@ -72,7 +72,7 @@ class AuthService {
             context: {
                 "name": user.name, 
                 "temporary-password": password,
-                "login-link": "https://link.to.login.account"
+                "login-link": this.getLoginUrl()
             }
         };
         this.emailService.sendMail(emailData);
@@ -99,6 +99,10 @@ class AuthService {
         user.pendingPassword = false;
         user.save();
         return user;
+    }
+
+    getLoginUrl() {
+        return process.env.APPLICATION_FRONTEND_BASE_URL + process.env.APPLICATION_FRONTEND_LOGIN_ENDPOINT;
     }
 
     async signIn(userDto) {
