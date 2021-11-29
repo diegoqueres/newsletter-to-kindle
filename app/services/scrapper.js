@@ -10,14 +10,11 @@ const ValidationUtils = require('../utils/validation-utils');
 const ConversionUtils = require('../utils/conversion-utils');
 const {Newsletter} = require('../models');
 const Translator = require('./translator');
+const loadTimeout = 30 * 1000;
 require('dotenv').config();
 
 class Scrapper {
-    static timeoutMin = 30 * 1000;
-    static timeoutMax = 90 * 1000;
-
-    constructor(newsletter = null, debug = false){
-        this.debug = debug;
+    constructor(newsletter = null){
         this._newsletter = newsletter;
         this.browser = null;
         this.page = null;
@@ -239,12 +236,7 @@ class Scrapper {
     }
 
     async navigateToPage(url) {
-        if (this.debug) {
-            await this.page.goto(url);
-            return;
-        }
-        await this.page.goto(url, {timeout: Scrapper.timeoutMax});
-        await this.page.waitForTimeout(random.int(Scrapper.timeoutMin, Scrapper.timeoutMax)); 
+        await this.page.goto(url, {timeout: loadTimeout});
     }
 
     async close() {

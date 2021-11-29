@@ -6,8 +6,6 @@ const Scrapper = require('../services/scrapper');
 const EmailService = require('../services/email-service');
 const SubscriptionService = require('../services/subscription-service');
 const SubscriberService = require('../services/subscriber-service');
-const ConversionUtils = require('../utils/conversion-utils');
-const ValidationUtils = require('../utils/validation-utils');
 const { Newsletter } = require('../models');
 const { jobLogger } = require('../../config/logger');
 
@@ -35,7 +33,7 @@ class NewsletterSenderJob {
           continue;
         }
 
-        const scrapper = new Scrapper(newsletter, this.getDebug());
+        const scrapper = new Scrapper(newsletter);
 
         const posts = await scrapper.getPosts();
         if (posts.length === 0) {
@@ -65,12 +63,6 @@ class NewsletterSenderJob {
         console.error(err);
       }
     }
-  }
-
-  getDebug() {
-    return ValidationUtils.validNonEmptyString(process.env.DEBUG)
-      ? ConversionUtils.stringToBoolean(process.env.DEBUG)
-      : false;
   }
 
   async sendPostToSubscribers(postData) {

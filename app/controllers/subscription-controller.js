@@ -1,13 +1,11 @@
 const HttpStatus = require('../errors/http-status');
 const APIError = require('../errors/api-error');
-const { validationResult } = require('express-validator');
 const BaseController = require('./base-controller');
 const SubscriptionService = require('../services/subscription-service');
 const NewsletterService = require('../services/newsletter-service');
 const SubscriberService = require('../services/subscriber-service');
 const Pagination = require('../libs/pagination');
 const es6BindAll = require("es6bindall");
-const path = require('path');
 
 class SubscriptionController extends BaseController {
     constructor() {
@@ -157,7 +155,6 @@ class SubscriptionController extends BaseController {
         res.json(requestedSubscription);
         next();
     }
-
 
     bindAll() {
         es6BindAll(this, ['create', 'confirm', 'unsubscribe', 'remove', 'listAll', 'findById']);

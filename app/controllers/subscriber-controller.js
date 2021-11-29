@@ -1,6 +1,5 @@
 const HttpStatus = require('../errors/http-status');
 const APIError = require('../errors/api-error');
-const { validationResult } = require('express-validator');
 const BaseController = require('./base-controller');
 const SubscriberService = require('../services/subscriber-service');
 const Pagination = require('../libs/pagination');

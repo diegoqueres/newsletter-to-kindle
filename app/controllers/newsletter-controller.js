@@ -1,22 +1,25 @@
 const HttpStatus = require('../errors/http-status');
 const APIError = require('../errors/api-error');
-const { validationResult } = require('express-validator');
-const UserService = require('../services/user-service');
+const BaseController = require('./base-controller');
 const NewsletterService = require('../services/newsletter-service');
 const Pagination = require('../libs/pagination');
+const es6BindAll = require("es6bindall");
 
-class NewsletterController {
-    static userService = new UserService();
-    static newsletterService = new NewsletterService();
+class NewsletterController extends BaseController {
+    constructor() {
+        super();
+        this.newsletterService = new NewsletterService();
+        this.bindAll();
+    }
 
     async listAllFromLoggedUser(req, res, next) {
         req.query.loggedUser = true;
-        return listAll(req, res, next);      
+        return this.listAll(req, res, next);      
     }
 
     async listAll(req, res, next) {
-        NewsletterController.validate(req, res);
-        const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
+        super.validate(req, res);
+        const {loggedUser, permissionOnlyHimself} = await super.getPermissions(req);
 
         const filter = Pagination.getFilter(req.query);
         if (permissionOnlyHimself || (req.query.loggedUser && req.query.loggedUser === true))
@@ -25,7 +28,7 @@ class NewsletterController {
             filter.name = req.query.name;
 
         const json = Pagination.getPagingData(
-            await NewsletterController.newsletterService.findAll(filter), filter.page, filter.size
+            await this.newsletterService.findAll(filter), filter.page, filter.size
         );
 
         res.json(json);
@@ -33,11 +36,11 @@ class NewsletterController {
     }
 
     async findById(req, res, next) {
-        NewsletterController.validate(req, res);
-        const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
+        super.validate(req, res);
+        const {loggedUser, permissionOnlyHimself} = await super.getPermissions(req);
         const requestedId = parseInt(req.params.id);
 
-        const requestedNewsletter = await NewsletterController.newsletterService.findById(requestedId);
+        const requestedNewsletter = await this.newsletterService.findById(requestedId);
         if (requestedNewsletter == null) 
             throw new APIError('Not found', HttpStatus.NOT_FOUND, 'newsletter.not-found');
 
@@ -49,26 +52,26 @@ class NewsletterController {
     }
 
     async create(req, res, next) {
-        NewsletterController.validate(req, res);
+        super.validate(req, res);
         const newsletterDto = req.body;
 
-        const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
+        const {loggedUser, permissionOnlyHimself} = await super.getPermissions(req, true, true);
         if (permissionOnlyHimself && loggedUser.id !== newsletterDto.userId) 
             throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'newsletter.not-allowed-create-to-another-users');     
 
-        const createdNewsletter = await NewsletterController.newsletterService.save(newsletterDto);
+        const createdNewsletter = await this.newsletterService.save(newsletterDto);
 
         res.status(HttpStatus.CREATED).json(createdNewsletter);
         next();
     }
 
     async edit(req, res, next) {
-        NewsletterController.validate(req, res);
-        const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
+        super.validate(req, res);
+        const {loggedUser, permissionOnlyHimself} = await super.getPermissions(req, true, true);
         const requestedId = parseInt(req.params.id);
         const newsletterDto = req.body;
         
-        const requestedNewsletter = await NewsletterController.newsletterService.findById(requestedId);
+        const requestedNewsletter = await this.newsletterService.findById(requestedId);
         if (requestedNewsletter == null) 
             throw new APIError('Not found', HttpStatus.NOT_FOUND, 'newsletter.not-found');
         
@@ -78,25 +81,25 @@ class NewsletterController {
         if (permissionOnlyHimself && requestedNewsletter.userId !== newsletterDto.userId) 
             throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'newsletter.not-allowed-transfer-to-another-users');     
 
-        const editedNewsletter = await NewsletterController.newsletterService.edit(requestedNewsletter, newsletterDto);
+        const editedNewsletter = await this.newsletterService.edit(requestedNewsletter, newsletterDto);
 
         res.status(HttpStatus.OK).json(editedNewsletter);
         next();
     }
 
     async activate(req, res, next) {
-        NewsletterController.validate(req, res);
-        const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
+        super.validate(req, res);
+        const {loggedUser, permissionOnlyHimself} = await super.getPermissions(req, true, true);
         const requestedId = parseInt(req.params.id);
         
-        const requestedNewsletter = await NewsletterController.newsletterService.findById(requestedId);
+        const requestedNewsletter = await this.newsletterService.findById(requestedId);
         if (requestedNewsletter == null) 
             throw new APIError('Not found', HttpStatus.NOT_FOUND, 'newsletter.not-found');
         
         if (permissionOnlyHimself && loggedUser.id !== requestedNewsletter.userId) 
             throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'newsletter.not-allowed-edit-to-another-users');              
 
-        NewsletterController.newsletterService.activate(requestedNewsletter)
+        this.newsletterService.activate(requestedNewsletter)
             .then(() => {
                 res.status(HttpStatus.OK).json({
                     message: res.__('newsletter.activate-successfully'),
@@ -107,18 +110,18 @@ class NewsletterController {
     }
 
     async deactivate(req, res, next) {
-        NewsletterController.validate(req, res);
-        const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
+        super.validate(req, res);
+        const {loggedUser, permissionOnlyHimself} = await super.getPermissions(req, true, true);
         const requestedId = parseInt(req.params.id);
         
-        const requestedNewsletter = await NewsletterController.newsletterService.findById(requestedId);
+        const requestedNewsletter = await this.newsletterService.findById(requestedId);
         if (requestedNewsletter == null) 
             throw new APIError('Not found', HttpStatus.NOT_FOUND, 'newsletter.not-found');
         
         if (permissionOnlyHimself && loggedUser.id !== requestedNewsletter.userId) 
             throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'newsletter.not-allowed-edit-to-another-users');              
 
-        NewsletterController.newsletterService.deactivate(requestedNewsletter)
+        this.newsletterService.deactivate(requestedNewsletter)
             .then(() => {
                 res.status(HttpStatus.OK).json({
                     message: res.__('newsletter.deactivate-successfully'),
@@ -129,46 +132,26 @@ class NewsletterController {
     }
 
     async remove(req, res, next) {
-        NewsletterController.validate(req, res);
-        const {loggedUser, permissionOnlyHimself} = await NewsletterController.getPermissions(req);
+        super.validate(req, res);
+        const {loggedUser, permissionOnlyHimself} = await super.getPermissions(req, true, true);
         const requestedId = parseInt(req.params.id);
         
-        const requestedNewsletter = await NewsletterController.newsletterService.findById(requestedId);
+        const requestedNewsletter = await this.newsletterService.findById(requestedId);
         if (requestedNewsletter == null) 
             throw new APIError('Not found', HttpStatus.NOT_FOUND, 'newsletter.not-found');
         
         if (permissionOnlyHimself && loggedUser.id !== requestedNewsletter.userId) 
             throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'newsletter.not-allowed-edit-to-another-users');              
 
-        NewsletterController.newsletterService.remove(requestedNewsletter)
+        this.newsletterService.remove(requestedNewsletter)
             .then(() => {
                 res.status(HttpStatus.NO_CONTENT).json();
                 next();
             });            
     }
 
-    static async getPermissions(req, blockedByChangePassword = true) {
-        const loggedUserId = req.userId; 
-        const loggedUser = await NewsletterController.userService.findById(loggedUserId);
-        if (loggedUser == null) 
-            throw new APIError('Unauthorized', HttpStatus.UNAUTHORIZED, 'auth.logged-user-not-found');
-
-        if (blockedByChangePassword && loggedUser.pendingPassword)
-            throw new APIError('Forbidden', HttpStatus.FORBIDDEN, 'auth.pendant-change-temporary-password');
-
-        const permissions = {
-            loggedUser,
-            permissionOnlyHimself: ((!loggedUser.super) || (loggedUser.super && loggedUser.pendingConfirm)),
-            permissionSuper: (loggedUser.super && !loggedUser.pendingConfirm)
-        };
-        return permissions;
-    }
-
-    static validate(req, res) {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) 
-          return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({errors: errors.array()});
+    bindAll() {
+        es6BindAll(this, ['listAllFromLoggedUser', 'listAll', 'findById', 'create', 'edit', 'activate', 'deactivate', 'remove']);
     }
 }
-
 module.exports = NewsletterController;
