@@ -9,8 +9,10 @@ pids
 *.seed
 *.pid.lock
 
-# Compiled binary addons (https://nodejs.org/api/addons.html)
+# Compiled binary addons
 build/Release
+npm-debug.log
+.DS_Store
 
 # Dependency directories
 node_modules/

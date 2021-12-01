@@ -1,5 +1,5 @@
 require('dotenv').config();
-const appPort = process.env.APPLICATION_PORT || 8080;
+const appPort = process.env.PORT || process.env.APPLICATION_PORT || 8080;
 
 exports.port = () => {
     return appPort;

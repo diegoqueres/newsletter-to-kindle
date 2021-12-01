@@ -59,7 +59,7 @@ npm run jobs
 
 You must publish api and start api service with command:
 ```bash
-npm run api
+npm start
 ```
 
 You must now manipulate the API. We haven't finalized a frontend project yet. See the Postman api documentation in _docs/postman_ for more information.
