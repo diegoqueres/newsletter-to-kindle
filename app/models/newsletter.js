@@ -58,6 +58,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Newsletter.init({
     name: DataTypes.STRING,
+    website: DataTypes.STRING,
     feedUrl: DataTypes.STRING,
     author: DataTypes.STRING,
     partial: DataTypes.BOOLEAN,

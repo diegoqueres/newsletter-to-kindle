@@ -37,6 +37,7 @@ class NewsletterService {
     async edit(entity, dto) {
          //mandatory
         entity.name = dto.name;  
+        entity.website = dto.website;
         entity.feedUrl = dto.feedUrl;
         entity.author = dto.author;
         entity.partial = dto.partial;
