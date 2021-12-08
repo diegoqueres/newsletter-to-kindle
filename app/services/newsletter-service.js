@@ -1,4 +1,4 @@
-const {Newsletter} = require('../models');
+const {Newsletter, Subscription} = require('../models');
 const APIError = require('../errors/api-error');
 const { Op } = require("sequelize");
 const HttpStatus = require('../errors/http-status');
@@ -57,10 +57,11 @@ class NewsletterService {
     }
 
     async remove(entity) {
-        this.removeById(entity.id);
+        await Subscription.destroy({
+            where: { newsletterId: entity.id }
+        });
 
-        //todo: make sure remove subscriptions too
-        //(after implement it)
+        this.removeById(entity.id);
     }
 
     async activate(entity) {

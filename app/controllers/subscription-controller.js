@@ -78,7 +78,7 @@ class SubscriptionController extends BaseController {
             const html = `<h2>${res.__('subscription.confirmed', { newsletterName: newsletter.name })}</h2>`;
             res.send(html);
         } else {
-            const message = res.__('subscription.confirmed');
+            const message = res.__('subscription.confirmed', { newsletterName: newsletter.name });
             res.json({ message });
         }
         next();

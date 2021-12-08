@@ -17,6 +17,5 @@ const {jobLogger} = require('../../config/logger');
   Promise.allSettled([job1])
     .then((result) => {
       jobLogger.info('Scheduled jobs has finished');
-      process.exit(1);
     });
 })();
