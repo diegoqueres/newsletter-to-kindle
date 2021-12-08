@@ -704,7 +704,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n   \"name\":\"Daily Newsletter I\",\n   \"feedUrl\":\"http://content-producer.com/daily/feed2\",\n   \"author\":\"Conan Doyle\",\n   \"partial\":false,\n   \"subject\":\"News\",\n   \"locale\":\"en-US\",\n   \"articleSelector\":null, \n   \"updatePeriodicity\":2,\n   \"dayOfWeek\":null,\n   \"translationTarget\":null,\n   \"translationMode\":null,\n   \"active\":true,\n   \"userId\":{{userId}}\n}",
+							"raw": "{\n   \"name\":\"Daily Newsletter I\",\n   \"website\": \"http://content-producer.com\",\n   \"feedUrl\":\"http://content-producer.com/daily/feed2\",\n   \"author\":\"Conan Doyle\",\n   \"partial\":false,\n   \"subject\":\"News\",\n   \"locale\":\"en-US\",\n   \"articleSelector\":null, \n   \"updatePeriodicity\":2,\n   \"dayOfWeek\":null,\n   \"translationTarget\":null,\n   \"translationMode\":null,\n   \"active\":true,\n   \"userId\":{{userId}}\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -736,7 +736,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n   \"name\":\"Daily Newsletter II\",\n   \"feedUrl\":\"http://content-producer.com/daily/feed2\",\n   \"author\":\"Conan Doyle\",\n   \"partial\":false,\n   \"subject\":\"News\",\n   \"locale\":\"en-US\",\n   \"articleSelector\": null,\n   \"updatePeriodicity\":2,\n   \"dayOfWeek\":null,\n   \"translationTarget\":null,\n   \"translationMode\":null,\n   \"active\":true,\n   \"userId\":{{userId}}\n}",
+							"raw": "{\n   \"name\":\"Daily Newsletter II\",\n   \"website\": \"http://content-producer.com\",\n   \"feedUrl\":\"http://content-producer.com/daily/feed2\",\n   \"author\":\"Conan Doyle\",\n   \"partial\":false,\n   \"subject\":\"News\",\n   \"locale\":\"en-US\",\n   \"articleSelector\": null,\n   \"updatePeriodicity\":2,\n   \"dayOfWeek\":null,\n   \"translationTarget\":null,\n   \"translationMode\":null,\n   \"active\":true,\n   \"userId\":{{userId}}\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1348,7 +1348,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n   \"newsletterId\": 1,\n   \"email\": \"florence.adams@example.com\",\n   \"kindleEmail\": \"florence.adams@kindle.com\",\n   \"acceptedTerms\": true\n}",
+							"raw": "{\n   \"newsletterId\": {{newsletterId}},\n   \"email\": \"florence.adams@example.com\",\n   \"kindleEmail\": \"florence.adams@kindle.com\",\n   \"acceptedTerms\": true\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1452,7 +1452,62 @@
 					]
 				},
 				{
-					"name": "Remove",
+					"name": "Unsubscribe",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicUrl}}/subscriptions/unsubscribe?show_compact_message=true&token={{subscriptionToken}}",
+							"host": [
+								"{{publicUrl}}"
+							],
+							"path": [
+								"subscriptions",
+								"unsubscribe"
+							],
+							"query": [
+								{
+									"key": "show_compact_message",
+									"value": "true"
+								},
+								{
+									"key": "token",
+									"value": "{{subscriptionToken}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unsubscribe",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"show_compact_message\": false,\n    \"token\": \"{{subscriptionToken}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicUrl}}/subscriptions/unsubscribe",
+							"host": [
+								"{{publicUrl}}"
+							],
+							"path": [
+								"subscriptions",
+								"unsubscribe"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Copy",
 					"request": {
 						"method": "DELETE",
 						"header": [
@@ -1470,6 +1525,57 @@
 							"path": [
 								"subscriptions",
 								"{{subscriptionId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{publicUrl}}/subscriptions/confirm?token={{subscriptionToken}}",
+							"host": [
+								"{{publicUrl}}"
+							],
+							"path": [
+								"subscriptions",
+								"confirm"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{subscriptionToken}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"{{subscriptionToken}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{publicUrl}}/subscriptions/confirm",
+							"host": [
+								"{{publicUrl}}"
+							],
+							"path": [
+								"subscriptions",
+								"confirm"
 							]
 						}
 					},
