@@ -82,7 +82,7 @@ You can enable/disable delivery of newsletters and also delete newsletters/subsc
 🚀 _Beta version_ 🚧
 
 ## Version
-_0.9.3: Beta version._
+_0.9.4: Beta version._
 
 ## Features
 - [x] Read newsletter feed content and post articles to kindle delivery email;

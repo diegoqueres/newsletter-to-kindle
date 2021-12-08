@@ -42,6 +42,7 @@
 	"subscription.not-found": "Subscription not found",
 	"subscription.confirmed": "Your Kindle subscription to {{{newsletterName}}} was confirmed successfully!",
 	"subscription.unsubscribe-confirmation": "Your Kindle subscription to {{{newsletterName}}} has been canceled!",
+	"subscription.unsubscribe-confirmation.additional-alert": "If you also want to unsubscribe it from your email, please consult received emails for more information (or the website: ",
 	"subscription.already-confirmed": "Your subscription has already been confirmed!",
 	"post.label.unsubscription-link": "To unsubscribe this content on your Kindle device, please access",
 	"post.default-content": "The content of this post is in the attached file."

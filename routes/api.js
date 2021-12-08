@@ -89,6 +89,7 @@ routes.get('/newsletters/:id', [
 routes.post('/newsletters', [
     middlewares,
     check('name', `name must be provided and have between ${nameMin} and ${nameMax} characters`).isLength({ min: nameMin, max: nameMax}),
+    check('website', 'website must be valid').isURL(),
     check('feedUrl', 'feedUrl must be valid').isURL(),
     check('author', `author must have between ${nameMin} and ${nameMax} characters`).isLength({ min: nameMin, max: nameMax}),
     check('partial', 'partial must be a boolean and must be provided').isBoolean(),
@@ -107,6 +108,7 @@ routes.put('/newsletters/:id', [
     middlewares,
     param('id', 'id must be a number').isInt(),
     check('name', `name must be provided and have between ${nameMin} and ${nameMax} characters`).isLength({ min: nameMin, max: nameMax}),
+    check('website', 'website must be valid').isURL(),
     check('feedUrl', 'feedUrl must be valid').isURL(),
     check('author', `author must have between ${nameMin} and ${nameMax} characters`).isLength({ min: nameMin, max: nameMax}),
     check('partial', 'partial must be a boolean and must be provided').isBoolean(),

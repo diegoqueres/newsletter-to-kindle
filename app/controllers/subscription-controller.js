@@ -78,7 +78,7 @@ class SubscriptionController extends BaseController {
             const html = `<h2>${res.__('subscription.confirmed', { newsletterName: newsletter.name })}</h2>`;
             res.send(html);
         } else {
-            const message = res.__('subscription.confirmed');
+            const message = res.__('subscription.confirmed', { newsletterName: newsletter.name });
             res.json({ message });
         }
         next();
@@ -101,14 +101,32 @@ class SubscriptionController extends BaseController {
         const newsletter = await this.newsletterService.findById(subscription.newsletterId);
         await this.subscriptionService.unsubscribe(subscription, token);
 
+        const message = this.buildUnsubscribeMessage(newsletter, req, res);
         if (res.html && res.html === true) {
-            const html = `<h2>${res.__('subscription.unsubscribe-confirmation', { newsletterName: newsletter.name })}</h2>`;
-            res.send(html);
+            res.send(message);
         } else {
-            const message = res.__('subscription.unsubscribe-confirmation');
             res.json({ message });
         }
         next();
+    }
+
+    buildUnsubscribeMessage(newsletter, req, res) {
+        const isHtml = res.html && res.html === true;
+        const isShowCompact = req.query.show_compact_message && req.query.show_compact_message === 'true'
+                                || req.body.show_compact_message && req.body.show_compact_message === true;
+
+        let message = '';
+        message += isHtml ? '<h2>' : '';
+        message += res.__('subscription.unsubscribe-confirmation', { newsletterName: newsletter.name });
+        message += isHtml ? '</h2>' : '';
+
+        if (isShowCompact) return message;
+
+        message += isHtml ? '<p>' : ' ';
+        message += res.__('subscription.unsubscribe-confirmation.additional-alert');
+        message += isHtml ? `<a href="${newsletter.website}">${newsletter.website}</a>).` : `${newsletter.website}).`;
+        message += isHtml ? '</p>' : '';
+        return message;
     }
 
     async remove(req, res, next) {

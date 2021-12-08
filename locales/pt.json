@@ -49,6 +49,7 @@
 	"subscription.not-found": "Inscrição não localizada",
 	"subscription.confirmed": "Sua inscrição Kindle para {{{newsletterName}}} foi confirmada com sucesso!",
 	"subscription.unsubscribe-confirmation": "Sua inscrição Kindle para {{{newsletterName}}} foi cancelada!",
+	"subscription.unsubscribe-confirmation.additional-alert": "Se também desejar cancelar a inscrição em seu e-mail, por favor consulte os e-mails recebidos para mais informações (ou o site: ",
 	"subscription.already-confirmed": "Sua inscrição já fora confirmada anteriormente!",
 
 	"post.label.unsubscription-link": "Se deseja não receber mais estas mensagens no seu Kindle, por favor acesse",
