@@ -19,6 +19,10 @@ const {port, baseUrl} = require('./config/system');
 
     app.use('/public', require("./routes/public"));
     app.use('/api', require("./routes/api"));
+    app.get('/', (req, res, next) => {
+        res.send(res.__('server.root-url.welcome-message', {serviceName: process.env.SERVICE_NAME}));
+        next();
+    });
 
     // middlewares
     app.use((error, req, res, next) => {

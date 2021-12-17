@@ -53,5 +53,7 @@
 	"subscription.already-confirmed": "Sua inscrição já fora confirmada anteriormente!",
 
 	"post.label.unsubscription-link": "Se deseja não receber mais estas mensagens no seu Kindle, por favor acesse",
-	"post.default-content": "O conteúdo deste post está no arquivo anexo."
+	"post.default-content": "O conteúdo deste post está no arquivo anexo.",
+
+	"server.root-url.welcome-message": "O serviço {{{serviceName}}} está no ar =)"
 }
