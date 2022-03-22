@@ -52,6 +52,7 @@ class NewsletterService {
         if (dto.translationTarget || dto.translationTarget === null) entity.translationTarget = dto.translationTarget;
         if (dto.translationMode || dto.translationMode === null) entity.translationMode = dto.translationMode;
         if (dto.articleSelector || dto.articleSelector === null) entity.articleSelector = dto.articleSelector;
+        if (dto.includeImgs || dto.includeImgs === null) entity.includeImgs = dto.includeImgs;
 
         return entity.save();
     }

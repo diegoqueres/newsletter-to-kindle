@@ -82,7 +82,7 @@ You can enable/disable delivery of newsletters and also delete newsletters/subsc
 🚀 _Beta version_ 🚧
 
 ## Version
-_0.9.4: Beta version._
+_0.10.0: Beta version._
 
 ## Features
 - [x] Read newsletter feed content and post articles to kindle delivery email;
@@ -90,9 +90,9 @@ _0.9.4: Beta version._
 - [x] Article translations _(full or bilingual translation, based on Microsoft Translator API)_;
 - [x] Rest API to manage newsletters, users and subscriptions;
 - [x] Log of submitted articles to improve the delivery verification;
+- [x] Allow sending article images;
 
 
-- _(optional)_ Allow sending article images _(Need better tests of Amazon Send to Kindle. Apparently it fails to deliver a portion of the images)_.
 - _(optional)_ The application currently sends 1 file for each article. Perhaps this can be improved in the future.
 
 ## Contributing

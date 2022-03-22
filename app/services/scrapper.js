@@ -4,10 +4,12 @@ const sanitizeHtml = require('sanitize-html');
 const Parser = require('rss-parser');
 const path = require('path');
 const { I18n } = require('i18n');
+const { JSDOM } = require('jsdom');
 const Post = require('../models/post');
 const DateUtils = require('../utils/date-utils');
 const ValidationUtils = require('../utils/validation-utils');
 const ConversionUtils = require('../utils/conversion-utils');
+const ImgUtils = require('../utils/img-utils');
 const {Newsletter} = require('../models');
 const Translator = require('./translator');
 const loadTimeout = 30 * 1000;
@@ -55,22 +57,45 @@ class Scrapper {
         let sourceFeed = await parser.parseURL(this.newsletter.feedUrl);
         let feedItems = this.getFeedItems(sourceFeed);
 
-        let posts = [];
-        feedItems.forEach((feedItem) => {
-            let post = new Post({   
+        let posts = new Array();
+
+        for (const feedItem of feedItems) {
+            const post = new Post({   
                 title: feedItem.title, 
                 author: ValidationUtils.validNonEmptyString(feedItem.author) ? feedItem.author : feedItem.creator, 
                 date: feedItem.date, 
                 link: feedItem.link, 
                 description: feedItem.contentSnippet
             });
+
             if (!this.newsletter.partial) {
-                const htmlContent = feedItem["content:encoded"];
-                post.content = ConversionUtils.htmlToPlainText(htmlContent);
-                post.htmlContent = sanitizeHtml(htmlContent);
+                let htmlContent = feedItem["content:encoded"] 
+                post.content = ConversionUtils.htmlToPlainText(htmlContent);    
+                
+                if (this.newsletter.includeImgs) {
+                    const jsDom = new JSDOM(htmlContent);
+                    const elements = jsDom.window.document.querySelectorAll("img[src^='http']");
+                    for (let i=0; i<elements.length; i++){
+                        elements[i].src = await ImgUtils.toBase64(elements[i].src);
+                    }
+                    htmlContent = jsDom.serialize();
+                }
+
+                post.htmlContent = sanitizeHtml(htmlContent, {
+                    allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img' ]),
+                    allowedSchemesByTag: { img: [ 'data' ]},
+                    transformTags: {
+                        img(tagName, attribs) {
+                            const tag = {tagName, attribs, shouldMerge: true};
+                            if (typeof tag.attribs['alt'] === 'undefined' || tag.attribs['alt'] === '')
+                                tag.attribs['alt'] = 'presentation';
+                            return tag;
+                        }
+                    }
+                });
             }
             posts.push(post);
-        });
+        }
 
         return posts;
     }
@@ -191,14 +216,14 @@ class Scrapper {
     generateHtmlContent(params) {
         const {post, lang, labelAuthor, labelSource, locale} = params;
 
-        let newHtmlContent = `<!DOCTYPE html>`
-        newHtmlContent += `<html>\n<head>\n`;
+        let newHtmlContent = `<html>`;
+        newHtmlContent += `<head>`;
         newHtmlContent += `<title>${post.title}</title>`;
-        newHtmlContent += `<meta charset="${this.newsletter.getEncoding()}">`;
+        newHtmlContent += `<meta http-equiv="content-type" content="text/html; charset=${this.newsletter.getEncoding()}">`;
         newHtmlContent += `<meta http-equiv="content-language" content="${lang}">`;
-        // old newHtmlContent += `<meta name="description" content="${post.description}">`;
         newHtmlContent += `<meta name="author" content="${post.author}">`;
-        newHtmlContent += `</head>\n<body>\n\n`;
+        newHtmlContent += `</head>\n`;
+        newHtmlContent += `<body>`;
         newHtmlContent += `<article>`;
         newHtmlContent += `<header>`;
         if (ValidationUtils.validNonEmptyString(post.originalTitle))
@@ -211,7 +236,6 @@ class Scrapper {
         newHtmlContent += `<footer>`
         newHtmlContent += `<p><em><strong>${labelAuthor}: </strong>${post.author}</em><br />`;
         newHtmlContent += `<em><strong>${labelSource}: </strong>${post.link}</em><br />`;
-        // old newHtmlContent += `</p></footer></body>\n</html>`;
 
         return newHtmlContent;
     }
@@ -220,23 +244,40 @@ class Scrapper {
         await this.initBrowser();
         await this.navigateToPage(postUrl);
  
-        let content = await this.page.$eval(this.newsletter.articleSelector, node => node.innerText);
-        let htmlContent = sanitizeHtml(
-            await this.page.$eval(this.newsletter.articleSelector, node => node.innerHTML)
-        );  
-        // When we learn more about attaching images to the Kindle-To-Email service, we will allow <img> tags
-        // let htmlContent = await this.page.$eval(this.newsletter.articleSelector, node => node.innerHTML);
-        // htmlContent = sanitizeHtml(htmlContent, {
-        //     allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img' ])
-        // });
+        const content = await this.page.$eval(this.newsletter.articleSelector, node => node.innerText);
+
+        if (this._newsletter.includeImgs)
+            await this.manipulatePageToConvertImgsToBase64(this.newsletter.articleSelector);
+
+        const htmlContent = sanitizeHtml(await this.page.$eval(this.newsletter.articleSelector, node => node.innerHTML), {
+            allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img', 'figure' ]),
+            allowedSchemesByTag: { img: [ 'data' ]}
+        });
 
         await this.close();
         
         return {content, htmlContent};
     }
 
+    async manipulatePageToConvertImgsToBase64(selector) {
+        await this.page.evaluate((sel) => {
+            let c = document.createElement('canvas');
+            let imgs = document.querySelectorAll(sel + ' img');
+            for (let img of imgs) {
+                c.height = img.naturalHeight;
+                c.width = img.naturalWidth;
+
+                let ctx = c.getContext('2d');
+                ctx.drawImage(img, 0, 0, c.width, c.height);
+
+                const base64String = c.toDataURL();
+                img.src = base64String;
+            }
+        }, selector);        
+    }
+
     async navigateToPage(url) {
-        await this.page.goto(url, {timeout: loadTimeout});
+        await this.page.goto(url, {timeout: loadTimeout, waitUntil: 'networkidle2'});
     }
 
     async close() {

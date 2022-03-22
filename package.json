@@ -1,6 +1,6 @@
 {
   "name": "newsletter-to-kindle",
-  "version": "0.9.4",
+  "version": "0.10.0",
   "description": "Create and send newsletters to Kindle devices",
   "main": "server.js",
   "scripts": {
@@ -11,6 +11,7 @@
   "author": "Diego Queres",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.26.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "es6bindall": "^0.0.9",
