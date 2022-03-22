@@ -704,7 +704,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n   \"name\":\"Daily Newsletter I\",\n   \"website\": \"http://content-producer.com\",\n   \"feedUrl\":\"http://content-producer.com/daily/feed2\",\n   \"author\":\"Conan Doyle\",\n   \"partial\":false,\n   \"subject\":\"News\",\n   \"locale\":\"en-US\",\n   \"articleSelector\":null, \n   \"updatePeriodicity\":2,\n   \"dayOfWeek\":null,\n   \"translationTarget\":null,\n   \"translationMode\":null,\n   \"active\":true,\n   \"userId\":{{userId}}\n}",
+							"raw": "{\n   \"name\":\"Daily Newsletter I\",\n   \"website\": \"http://content-producer.com\",\n   \"feedUrl\":\"http://content-producer.com/daily/feed2\",\n   \"author\":\"Conan Doyle\",\n   \"partial\":false,\n   \"subject\":\"News\",\n   \"locale\":\"en-US\",\n   \"articleSelector\":null, \n   \"updatePeriodicity\":2,\n   \"dayOfWeek\":null,\n   \"translationTarget\":null,\n   \"translationMode\":null,\n   \"active\":true,\n   \"includeImgs\":true,   \"userId\":{{userId}}\n}",
 							"options": {
 								"raw": {
 									"language": "json"

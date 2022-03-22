@@ -23,7 +23,6 @@ module.exports = (sequelize, DataTypes) => {
       switch(this.locale.toLowerCase()) {
         case 'pt-br':
         case 'en-us':
-          return 'Windows-1252';
         default:
           return 'UTF-8';
       }
@@ -70,6 +69,7 @@ module.exports = (sequelize, DataTypes) => {
     dayOfWeek: DataTypes.INTEGER,
     translationTarget: DataTypes.STRING,
     translationMode: DataTypes.INTEGER,
+    includeImgs: DataTypes.BOOLEAN,
     active: DataTypes.BOOLEAN
   }, {
     sequelize,

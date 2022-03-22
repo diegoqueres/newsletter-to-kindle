@@ -101,7 +101,8 @@ routes.post('/newsletters', [
     check('translationTarget', 'translationTarget must be a number').if(body('translationTarget').exists({checkNull: true})).isLocale(),
     check('translationMode', 'translationMode must be a number').if(body('translationMode').exists({checkNull: true})).isInt(),
     check('active', 'active must be a boolean and must be provided').isBoolean(),
-    check('userId', 'userId must be a number and must be provided').isInt()
+    check('userId', 'userId must be a number and must be provided').isInt(),
+    check('includeImgs', 'includeImgs must be a boolean').if(body('includeImgs').exists({checkNull: true})).isBoolean()
 ], newsletterController.create);
 
 routes.put('/newsletters/:id', [
@@ -120,7 +121,8 @@ routes.put('/newsletters/:id', [
     check('translationTarget', 'translationTarget must be a number').if(body('translationTarget').exists({checkNull: true})).isLocale(),
     check('translationMode', 'translationMode must be a number').if(body('translationMode').exists({checkNull: true})).isInt(),
     check('active', 'active must be a boolean and must be provided').isBoolean(),
-    check('userId', 'userId must be a number and must be provided').isInt()
+    check('userId', 'userId must be a number and must be provided').isInt(),
+    check('includeImgs', 'includeImgs must be a boolean').if(body('includeImgs').exists({checkNull: true})).isBoolean()
 ], newsletterController.edit);
 
 routes.patch('/newsletters/:id/activate', [

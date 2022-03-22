@@ -8,6 +8,7 @@ const SubscriptionService = require('../services/subscription-service');
 const SubscriberService = require('../services/subscriber-service');
 const { Newsletter } = require('../models');
 const { jobLogger } = require('../../config/logger');
+const sanitizeHtml = require('sanitize-html');
 
 class NewsletterSenderJob {
   constructor() {
@@ -144,7 +145,7 @@ class NewsletterSenderJob {
       
     const content = post.htmlContent + contentSufix;
 
-    return post.fileEncoding !== 'utf8'
+    return post.fileEncoding !== 'UTF-8'
       ? iconv.encode(content, post.fileEncoding)
       : content;
   }

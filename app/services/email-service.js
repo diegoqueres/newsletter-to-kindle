@@ -52,8 +52,11 @@ class EmailService {
       handledAttachments = attachments.map((item) => { return { path: item } });
     } 
 
+    let emailEncoding = encoding || 'utf8';
+    emailEncoding = emailEncoding === 'UTF-8' ? 'utf8' : emailEncoding;
+
     const mailOptions = {
-      encoding: encoding || 'utf8',
+      encoding: emailEncoding,
       from: fromMail,
       to: toEmail,
       subject: subject,
