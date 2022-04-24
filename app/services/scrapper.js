@@ -235,7 +235,7 @@ class Scrapper {
         newHtmlContent += `</article>`;
         newHtmlContent += `<footer>`
         newHtmlContent += `<p><em><strong>${labelAuthor}: </strong>${post.author}</em><br />`;
-        newHtmlContent += `<em><strong>${labelSource}: </strong>${post.link}</em><br />`;
+        newHtmlContent += `<em><strong>${labelSource}: </strong><a href="${post.link}">${post.link}</a></em><br />`;
 
         return newHtmlContent;
     }
@@ -245,15 +245,18 @@ class Scrapper {
         await this.navigateToPage(postUrl);
  
         const content = await this.page.$eval(this.newsletter.articleSelector, node => node.innerText);
+        let htmlContent = null;
 
-        if (this._newsletter.includeImgs)
+        if (this._newsletter.includeImgs) {
             await this.manipulatePageToConvertImgsToBase64(this.newsletter.articleSelector);
-
-        const htmlContent = sanitizeHtml(await this.page.$eval(this.newsletter.articleSelector, node => node.innerHTML), {
-            allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img', 'figure' ]),
-            allowedSchemesByTag: { img: [ 'data' ]}
-        });
-
+            htmlContent = sanitizeHtml(await this.page.$eval(this.newsletter.articleSelector, node => node.innerHTML), {
+                allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img', 'figure' ]),
+                allowedSchemesByTag: { img: [ 'data' ]}
+            });
+        } else {
+            htmlContent = sanitizeHtml(await this.page.$eval(this.newsletter.articleSelector, node => node.innerHTML));
+        }
+        
         await this.close();
         
         return {content, htmlContent};
