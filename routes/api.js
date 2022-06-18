@@ -3,6 +3,7 @@ const { check, query, param, body } = require('express-validator');
 const routes = express.Router();
 const Jwt = require('../app/libs/jwt');
 const nameMin = 5, nameMax = 255;
+const daysOfWeekMax = 14;
 const passwordMin = 8, passwordMax = 128;
 
 
@@ -66,6 +67,7 @@ routes.post('/users/:id/promote', [
 //----------------------------------------------------------------
 
 // Newsletters
+const {Newsletter} = require('../app/models');
 const NewsletterController = require('../app/controllers/newsletter-controller');
 const newsletterController = new NewsletterController();
 
@@ -97,7 +99,8 @@ routes.post('/newsletters', [
     check('locale', 'locale must be valid').isLocale(),
     check('articleSelector', 'articleSelector must be a string').if(body('articleSelector').exists({checkNull: true})).isString(),
     check('updatePeriodicity', 'updatePeriodicity must be a number').isInt(),
-    check('dayOfWeek', 'dayOfWeek must be a number').if(body('dayOfWeek').exists({checkNull: true})).isInt(),
+    check('dayOfWeek', `dayOfWeek must be a comma separated set of numbers for each day of the week (0 => sunday to 6 => saturday) with max of ${daysOfWeekMax} characters`).if(body('dayOfWeek').exists({checkNull: true})).matches(/([0-6])[^,]?/g).isLength({ max: daysOfWeekMax}),
+    check('dayOfWeek', 'dayOfWeek cannot have more than one day to weekly newsletters').if((value, { req }) => req.body.updatePeriodicity && parseInt(req.body.updatePeriodicity) === Newsletter.PERIODICITY.WEEKLY).if(body('dayOfWeek').exists({checkNull: true})).isLength({ max: 1}),
     check('translationTarget', 'translationTarget must be a number').if(body('translationTarget').exists({checkNull: true})).isLocale(),
     check('translationMode', 'translationMode must be a number').if(body('translationMode').exists({checkNull: true})).isInt(),
     check('active', 'active must be a boolean and must be provided').isBoolean(),
@@ -117,7 +120,8 @@ routes.put('/newsletters/:id', [
     check('locale', 'locale must be valid').isLocale(),
     check('articleSelector', 'articleSelector must be a string').if(body('articleSelector').exists({checkNull: true})).isString(),
     check('updatePeriodicity', 'updatePeriodicity must be a number').isInt(),
-    check('dayOfWeek', 'dayOfWeek must be a number').if(body('dayOfWeek').exists({checkNull: true})).isInt(),
+    check('dayOfWeek', `dayOfWeek must be a comma separated set of numbers for each day of the week (0 => sunday to 6 => saturday) with max of ${daysOfWeekMax} characters`).if(body('dayOfWeek').exists({checkNull: true})).matches(/([0-6])[^,]?/g).isLength({ max: daysOfWeekMax}),
+    check('dayOfWeek', 'dayOfWeek cannot have more than one day to weekly newsletters').if((value, { req }) => req.body.updatePeriodicity && parseInt(req.body.updatePeriodicity) === Newsletter.PERIODICITY.WEEKLY).if(body('dayOfWeek').exists({checkNull: true})).isLength({ max: 1}),
     check('translationTarget', 'translationTarget must be a number').if(body('translationTarget').exists({checkNull: true})).isLocale(),
     check('translationMode', 'translationMode must be a number').if(body('translationMode').exists({checkNull: true})).isInt(),
     check('active', 'active must be a boolean and must be provided').isBoolean(),
