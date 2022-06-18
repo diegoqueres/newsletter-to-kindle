@@ -119,14 +119,20 @@ class Scrapper {
             case Newsletter.PERIODICITY.DAILY:
                 feedItems = sourceFeed.items.filter((item) => {
                     item.date = new Date(item.isoDate);
-                    return DateUtils.isSameDate( today, item.date );
+
+                    if (this.newsletter.getDaysOfWeek().length === 0)
+                        return DateUtils.isSameDate(today, item.date);
+                    else
+                        return (DateUtils.isSameDate(today, item.date) 
+                                    && this.newsletter.getDaysOfWeek().some((day) => day === today.getDay()));
                 }); 
                 break;
 
             case Newsletter.PERIODICITY.WEEKLY:
                 feedItems = sourceFeed.items.filter((item) => {
                     item.date = new Date(item.isoDate);
-                    return (DateUtils.isDateInThisWeek(item.date) && (this.newsletter.dayOfWeek == today.getDay()));
+                    return (DateUtils.isDateInThisWeek(item.date) 
+                                && this.newsletter.getDaysOfWeek().some((day) => day === today.getDay()));
                 }); 
                 break;
 

@@ -44,6 +44,10 @@ module.exports = (sequelize, DataTypes) => {
       return this.partial; 
     }
 
+    getDaysOfWeek() {
+      return this.dayOfWeek != null ? this.dayOfWeek.split(',').map((day) => parseInt(day)) : [];
+    }
+
     static associate(models) {
       Newsletter.belongsTo(models['User'], { foreignKey: 'userId' });
 
@@ -66,7 +70,7 @@ module.exports = (sequelize, DataTypes) => {
     articleSelector: DataTypes.STRING,
     maxPosts: DataTypes.INTEGER,
     updatePeriodicity: DataTypes.INTEGER,
-    dayOfWeek: DataTypes.INTEGER,
+    dayOfWeek: DataTypes.STRING,
     translationTarget: DataTypes.STRING,
     translationMode: DataTypes.INTEGER,
     includeImgs: DataTypes.BOOLEAN,
