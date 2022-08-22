@@ -5,6 +5,7 @@ const Parser = require('rss-parser');
 const path = require('path');
 const { I18n } = require('i18n');
 const { JSDOM } = require('jsdom');
+const { Readability } = require('@mozilla/readability');
 const Post = require('../models/post');
 const DateUtils = require('../utils/date-utils');
 const ValidationUtils = require('../utils/validation-utils');
@@ -250,17 +251,19 @@ class Scrapper {
         await this.initBrowser();
         await this.navigateToPage(postUrl);
  
-        const content = await this.page.$eval(this.newsletter.articleSelector, node => node.innerText);
+        const content = await this.page.$$eval(this.newsletter.articleSelector, nodes => { return nodes.map(node => node.innerText) });
         let htmlContent = null;
 
         if (this._newsletter.includeImgs) {
             await this.manipulatePageToConvertImgsToBase64(this.newsletter.articleSelector);
-            htmlContent = sanitizeHtml(await this.page.$eval(this.newsletter.articleSelector, node => node.innerHTML), {
+            htmlContent = await this.page.$$eval(this.newsletter.articleSelector, nodes => { return nodes.map(node => node.innerHTML) });
+            htmlContent = sanitizeHtml(htmlContent, {
                 allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img', 'figure' ]),
                 allowedSchemesByTag: { img: [ 'data' ]}
             });
         } else {
-            htmlContent = sanitizeHtml(await this.page.$eval(this.newsletter.articleSelector, node => node.innerHTML));
+            htmlContent = await this.page.$$eval(this.newsletter.articleSelector, nodes => { return nodes.map(node => node.innerHTML) });
+            htmlContent = sanitizeHtml(htmlContent);
         }
         
         await this.close();
