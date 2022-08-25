@@ -105,7 +105,8 @@ routes.post('/newsletters', [
     check('translationMode', 'translationMode must be a number').if(body('translationMode').exists({checkNull: true})).isInt(),
     check('active', 'active must be a boolean and must be provided').isBoolean(),
     check('userId', 'userId must be a number and must be provided').isInt(),
-    check('includeImgs', 'includeImgs must be a boolean').if(body('includeImgs').exists({checkNull: true})).isBoolean()
+    check('includeImgs', 'includeImgs must be a boolean').if(body('includeImgs').exists({checkNull: true})).isBoolean(),
+    check('useReadable', 'useReadable must be a boolean').if(body('useReadable').exists({checkNull: true})).isBoolean()
 ], newsletterController.create);
 
 routes.put('/newsletters/:id', [
@@ -126,7 +127,8 @@ routes.put('/newsletters/:id', [
     check('translationMode', 'translationMode must be a number').if(body('translationMode').exists({checkNull: true})).isInt(),
     check('active', 'active must be a boolean and must be provided').isBoolean(),
     check('userId', 'userId must be a number and must be provided').isInt(),
-    check('includeImgs', 'includeImgs must be a boolean').if(body('includeImgs').exists({checkNull: true})).isBoolean()
+    check('includeImgs', 'includeImgs must be a boolean').if(body('includeImgs').exists({checkNull: true})).isBoolean(),
+    check('useReadable', 'useReadable must be a boolean').if(body('useReadable').exists({checkNull: true})).isBoolean()
 ], newsletterController.edit);
 
 routes.patch('/newsletters/:id/activate', [

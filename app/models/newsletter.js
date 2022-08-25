@@ -74,6 +74,7 @@ module.exports = (sequelize, DataTypes) => {
     translationTarget: DataTypes.STRING,
     translationMode: DataTypes.INTEGER,
     includeImgs: DataTypes.BOOLEAN,
+    useReadable: DataTypes.BOOLEAN,
     active: DataTypes.BOOLEAN
   }, {
     sequelize,
