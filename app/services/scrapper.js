@@ -5,6 +5,7 @@ const Parser = require('rss-parser');
 const path = require('path');
 const { I18n } = require('i18n');
 const { JSDOM } = require('jsdom');
+const { Readability } = require('@mozilla/readability');
 const Post = require('../models/post');
 const DateUtils = require('../utils/date-utils');
 const ValidationUtils = require('../utils/validation-utils');
@@ -250,22 +251,51 @@ class Scrapper {
         await this.initBrowser();
         await this.navigateToPage(postUrl);
  
-        const content = await this.page.$eval(this.newsletter.articleSelector, node => node.innerText);
-        let htmlContent = null;
+        const content = await this.extractContent();
 
+        let htmlContent = null;
         if (this._newsletter.includeImgs) {
             await this.manipulatePageToConvertImgsToBase64(this.newsletter.articleSelector);
-            htmlContent = sanitizeHtml(await this.page.$eval(this.newsletter.articleSelector, node => node.innerHTML), {
+
+            htmlContent = await this.extractHtmlContent(postUrl);
+
+            htmlContent = sanitizeHtml(reader.parse().content, {
                 allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img', 'figure' ]),
                 allowedSchemesByTag: { img: [ 'data' ]}
             });
+
         } else {
-            htmlContent = sanitizeHtml(await this.page.$eval(this.newsletter.articleSelector, node => node.innerHTML));
+            htmlContent = await this.extractHtmlContent(postUrl);
+            htmlContent = sanitizeHtml(htmlContent);
         }
         
         await this.close();
         
         return {content, htmlContent};
+    }
+
+    async extractContent() {
+        if (this.newsletter.articleSelector && this.newsletter.articleSelector !== '')
+            return this.page.$$eval(this.newsletter.articleSelector, nodes => { return nodes.map(node => node.innerText) });
+        else
+            return this.page.content();   
+    }
+
+    async extractHtmlContent(postUrl) {
+        let htmlContent = '';
+
+        if (this.newsletter.articleSelector && this.newsletter.articleSelector !== '')
+            htmlContent = await this.page.$$eval(this.newsletter.articleSelector, nodes => { return nodes.map(node => node.innerHTML) });
+        else
+            htmlContent = await this.page.content();   
+
+        if (this._newsletter.useReadable) {
+            const doc = new JSDOM(htmlContent, { url: postUrl });
+            const reader = new Readability(doc.window.document);
+            htmlContent = reader.parse().content;
+        } 
+        
+        return htmlContent;
     }
 
     async manipulatePageToConvertImgsToBase64(selector) {

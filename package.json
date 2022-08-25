@@ -11,6 +11,7 @@
   "author": "Diego Queres",
   "license": "ISC",
   "dependencies": {
+    "@mozilla/readability": "^0.4.2",
     "axios": "^0.26.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
