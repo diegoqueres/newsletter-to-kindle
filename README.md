@@ -58,21 +58,35 @@ npm run jobs
 ```
 
 ### Docker
-You must create a local MYSQL Database and create your own .env file for your environment.
+You can build and run docker image or use docker compose
 
+#### Build and use image
 To build image and create a container, run the following commands:
 ```
-$ docker image build -t newsletter-to-kindle .
-$ docker container run -d -p 3001:3001 --name ntk-api newsletter-to-kindle
+docker image build -t newsletter-to-kindle .
+docker container run -d -p 3001:3001 --name ntk-api newsletter-to-kindle
+```
+
+#### Docker Compose
+Run the following commands:
+```
+docker compose up -d
+```
+
+Stop the container:
+```
+docker compose stop
+```
+
+To remove container _(and related volumes)_:
+```
+docker compose down --volumes 
 ```
 
 
 ## Usage
 
-You must publish api and start api service with command:
-```bash
-npm start
-```
+You must publish api and start api service.
 
 You must now manipulate the API. We haven't finalized a frontend project yet. See the Postman api documentation in _docs/postman_ for more information.
 
