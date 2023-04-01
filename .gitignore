@@ -26,8 +26,11 @@ typings/
 
 # dotenv environment variables file
 .env
-.env.test
+.env*.test
+.env*.dev
 .env*.local
+.env*.qa
+.env*.prod
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -50,3 +53,6 @@ package-lock.json
 # End of https://www.toptal.com/developers/gitignore/api/node
 
 .azure/
+
+database/seeders/init-*-environment.sql
+database/seeders/*-init-*-environment.js

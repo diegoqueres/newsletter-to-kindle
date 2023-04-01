@@ -26,6 +26,8 @@ The application is ready for the services below, but you can use services from a
 2. Microsoft Translation API.
 
 ## Installation
+
+### Manual installation
 Clone the project and them run to install Node packages.
 ```bash
 npm install
@@ -54,6 +56,16 @@ To run api delivery job of newsletters, run the following command:
 ```bash
 npm run jobs
 ```
+
+### Docker
+You must create a local MYSQL Database and create your own .env file for your environment.
+
+To build image and create a container, run the following commands:
+```
+$ docker image build -t newsletter-to-kindle .
+$ docker container run -d -p 3001:3001 --name ntk-api newsletter-to-kindle
+```
+
 
 ## Usage
 
