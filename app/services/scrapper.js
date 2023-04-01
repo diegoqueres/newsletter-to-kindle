@@ -11,6 +11,7 @@ const DateUtils = require('../utils/date-utils');
 const ValidationUtils = require('../utils/validation-utils');
 const ConversionUtils = require('../utils/conversion-utils');
 const ImgUtils = require('../utils/img-utils');
+const StringUtils = require('../utils/string-utils');
 const {Newsletter} = require('../models');
 const Translator = require('./translator');
 const loadTimeout = 30 * 1000;
@@ -73,8 +74,12 @@ class Scrapper {
             });
 
             if (!this.newsletter.partial) {
-                let htmlContent = feedItem["content:encoded"] 
-                post.content = ConversionUtils.htmlToPlainText(htmlContent);    
+                let htmlContent = StringUtils.isEmpty(feedItem["content:encoded"]) 
+                    ? feedItem["content"] 
+                    : feedItem["content:encoded"];
+                let textContent = ConversionUtils.htmlToPlainText(htmlContent);
+                
+                post.content = textContent;    
                 
                 if (this.newsletter.includeImgs) {
                     const jsDom = new JSDOM(htmlContent);
