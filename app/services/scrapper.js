@@ -49,7 +49,10 @@ class Scrapper {
     }
 
     async initBrowser() {
-        this.browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+        this.browser = await puppeteer.launch({ 
+            executablePath: '/usr/bin/chromium-browser',
+            args: ['--no-sandbox'] 
+        });
         this.page = await this.browser.newPage();
     }
 

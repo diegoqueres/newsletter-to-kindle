@@ -12,11 +12,15 @@ const admin = {
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
+    const userService = new UserService();
+    const authService = new AuthService();
     const date = new Date();
     const salt = uuidv4();
 
-    const userService = new UserService();
-    const authService = new AuthService();
+    const isAdminExists = (await userService.findByEmail(admin.email) !== null);
+    if (isAdminExists)
+      return;
+
     const passwordData = userService.encryptPassword(admin.password, salt);
 
     await queryInterface.bulkInsert('Users', [{

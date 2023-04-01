@@ -1,0 +1,37 @@
+version: "3.9"
+
+volumes:
+  ntk-db-data: 
+  ntk-app-data: 
+networks:
+  ntk-network:
+
+services:
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - ntk-db-data:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - ntk-network
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: ntk 
+
+  app:
+    build: .
+    command: ["./wait-for-it.sh", "mysql:3306", "--", "npm", "run", "local"]
+    ports:
+      - 3001:3001
+    networks:
+      - ntk-network      
+    working_dir: /app
+    volumes:
+      - ntk-app-data:/app
+    depends_on:
+      - mysql
+    env_file:
+      - .env
+
+      
